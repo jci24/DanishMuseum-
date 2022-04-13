@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="tTtU1S" name="RealTimeFDTD" projectType="guiapp" useAppConfig="0"
+              displaySplashScreen="1" jucerFormatVersion="1">
+  <MAINGROUP id="fzqTFQ" name="RealTimeFDTD">
+    <GROUP id="{AFE7F865-9B22-1552-138D-393008ADA106}" name="Source">
+      <FILE id="MSsjL3" name="OneDWave.cpp" compile="1" resource="0" file="Source/OneDWave.cpp"/>
+      <FILE id="XJTbic" name="OneDWave.h" compile="0" resource="0" file="Source/OneDWave.h"/>
+      <FILE id="pSzZcr" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="Oeg1cE" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="IoP5SW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+    <GROUP id="{250E046E-8C90-7162-01E4-1CB47C331FE5}" name="Resources">
+      <FILE id="Mlu2TT" name="violinNylonStrings.jpg" compile="0" resource="1"
+            file="Resources/violinNylonStrings.jpg"/>
+      <FILE id="jFqQ0u" name="Alurohr.jpg" compile="0" resource="1" file="Resources/Alurohr.jpg"/>
+      <FILE id="bxQg4T" name="Geige.jpg" compile="0" resource="1" file="Resources/Geige.jpg"/>
+      <FILE id="sNSsgd" name="Westerngitarre.jpg" compile="0" resource="1"
+            file="Resources/Westerngitarre.jpg"/>
+      <FILE id="wJxUoQ" name="Glockenspiel.jpg" compile="0" resource="1"
+            file="Resources/Glockenspiel.jpg"/>
+      <FILE id="NnWNny" name="guitar-without-strings.jpg" compile="0" resource="1"
+            file="Resources/guitar-without-strings.jpg"/>
+      <FILE id="d6DHF4" name="Holzbox.jpg" compile="0" resource="1" file="Resources/Holzbox.jpg"/>
+      <FILE id="S227yV" name="Metallbox.jpg" compile="0" resource="1" file="Resources/Metallbox.jpg"/>
+      <FILE id="ltJoC7" name="Pappkarton.jpeg" compile="0" resource="1" file="Resources/Pappkarton.jpeg"/>
+      <FILE id="jJZavc" name="violineWithoutStrings.jpg" compile="0" resource="1"
+            file="Resources/violineWithoutStrings.jpg"/>
+      <FILE id="KT4erf" name="Xylophon.jpg" compile="0" resource="1" file="Resources/Xylophon.jpg"/>
+      <FILE id="iV593c" name="GuitarNylonStrings.jpg" compile="0" resource="1"
+            file="Resources/GuitarNylonStrings.jpg"/>
+      <FILE id="clrwgV" name="MetalBar.jpg" compile="0" resource="1" file="Resources/MetalBar.jpg"/>
+      <FILE id="wyYjF8" name="WoodenBar.jpg" compile="0" resource="1" file="Resources/WoodenBar.jpg"/>
+      <FILE id="IbPUEO" name="GuitarOnlyStrings.jpg" compile="0" resource="1"
+            file="Resources/GuitarOnlyStrings.jpg"/>
+      <FILE id="TEPhPH" name="ViolinOnlyStrings.jpg" compile="0" resource="1"
+            file="Resources/ViolinOnlyStrings.jpg"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="RealTimeFDTD"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="RealTimeFDTD"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../newJUCE/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2019>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_audio_utils" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_core" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_events" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="C:\JUCE\modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+</JUCERPROJECT>
