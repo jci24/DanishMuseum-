@@ -4,6 +4,7 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="fzqTFQ" name="RealTimeFDTD">
     <GROUP id="{AFE7F865-9B22-1552-138D-393008ADA106}" name="Source">
+      <FILE id="nCxbj3" name="Convolution.h" compile="0" resource="0" file="Source/Convolution.h"/>
       <FILE id="MSsjL3" name="OneDWave.cpp" compile="1" resource="0" file="Source/OneDWave.cpp"/>
       <FILE id="XJTbic" name="OneDWave.h" compile="0" resource="0" file="Source/OneDWave.h"/>
       <FILE id="pSzZcr" name="MainComponent.cpp" compile="1" resource="0"

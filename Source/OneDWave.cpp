@@ -316,9 +316,9 @@ void OneDWave::calculateSchemeStiffstringWithGuitar()
 
     for(int l = 2; l < N-3; l++)
     {
+        //uNext(l) = 2 * u(l) - uPrev(l) + (lambda1 ^ 2) * (u(l + 1) - 2 * u(l) + u(l - 1)) - (k ^ 2 * kappa ^ 2 / h1 ^ 4) * (u(l + 2) - 4 * u(l + 1) + 6 * u(l) - 4 * u(l - 1) + u(l - 2))
        
-       
-        u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
+        u[0][l] = 2 * u[1][l] - u[2][l] + pow(lambdaSq, 2) * (u[1][l + 1] - 2 * u[1][l] + u[1][l - 1]) - (pow(k, 2) * pow(kappa, 2) / pow(hBar, 4) * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4*u[1][l - 1] + u[1][l - 2]));
         // To do: Add frquency depended damping!
         
     }
@@ -336,7 +336,7 @@ void OneDWave::calculateSchemeStiffstringWithVioline()
     {
        
         
-        u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
+        u[0][l] = 2 * u[1][l] - u[2][l] + pow(lambdaSq, 2) * (u[1][l + 1] - 2 * u[1][l] + u[1][l - 1]) - (pow(k, 2) * pow(kappa, 2) / pow(hBar, 4) * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4 * u[1][l - 1] + u[1][l - 2]));
 
         // To do: Add frquency depended damping!
         
@@ -457,6 +457,8 @@ void OneDWave::updateStates()
     
     //******
 }
+
+
 
 
 
