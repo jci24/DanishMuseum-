@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Convolution.h"
 
 ///__________________________
 
@@ -16,6 +17,8 @@ class MainComponent  : public juce::AudioAppComponent,
 ///__________________________
                         //public Button::Listener,
 ///__________________________
+                        //public MouseEvent::Listener,
+///__________________________
                         public ComboBox::Listener
 
 {
@@ -29,21 +32,25 @@ public:
     void getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill) override; // those are called from the back end of JUCE; always before processing
     void releaseResources() override; // release resources when the plugin gets closed
     
-    //======== Mouse Trigger ==============
-    //void mouseDown (const MouseEvent &e) override;
-    // Called when a mouse button is pressed. 
     
+   
 
     //==============================================================================
-    void paint (juce::Graphics& g) override; // JUCE GUI functions
+    void paint (juce::Graphics &g) override; // JUCE GUI functions
     void resized() override; // mandatory to give the 1DWave the bounds in the GUI
-
-    ///__________________________
     
+    
+    
+    //======== Mouse Trigger ==============
+    void mouseDown (const MouseEvent &e) override;
+    
+    
+    
+
     
     // Sliders and Buttons and Comboboxes
     
-    void sliderValueChanged (Slider* slider) override;
+    void sliderValueChanged (Slider *slider) override;
     //void buttonClicked (Button*) override;
     void comboBoxChanged (ComboBox *comboBoxThatHasChanged) override;
     
@@ -57,7 +64,8 @@ public:
     float limit (float val, float min, float max);
 
     ///__________________________
-
+    
+    
     
     //png
     ImageComponent mImageBodyGuitar;
@@ -77,9 +85,16 @@ public:
     
   
     
-    
+    void exchangeArpeggioNumber (double arpeggioToSet);
+    void exchangeScaleNumber (double scaleToSet);
+    void setDamping (double dampingToSet);
+    void setSpeed (double speedToSet)
+    {
+        speedNumber = speedToSet;
+    }
 
     
+    void excite(float tone);
     
     
 private: // Member variables
@@ -87,22 +102,23 @@ private: // Member variables
     
     double fs; // Sample rate which we can retrieve from the prepareToPlay function
     
-    std::unique_ptr<OneDWave> oneDWave; // using a smart pointer for 1D wave class; initializing the pointer without knowing the size 
+    std::unique_ptr<OneDWave> oneDWave; // using a smart pointer for 1D wave class; initializing the pointer without knowing the size
 
     
     bool showImage;
    
 
    //Initialise all objects
-    Slider amplitudeSlider;
-    Slider stringLengthSlider;
-    Slider dampingSlider;
-    Slider materialSlider;
     
-    Label labelAmplitude;
-    Label labelStringLength;
+    Slider arpeggioSlider;
+    Slider scaleSlider;
+    Slider dampingSlider;
+    Slider speedSlider;
+    
+    Label labelArpeggio;
+    Label labelScale;
     Label labelDamping;
-    Label labelMaterial;
+    Label labelSpeed;
     
     //Buttons
     //TextButton buttonInstrument1 {"String"};
@@ -117,9 +133,20 @@ private: // Member variables
     ComboBox instrument;
 
     
+    //Variables for Sliders
+    double arpeggioNumber;
+    double scaleNumber;
+    double damping;
+    double speedNumber;
     
     
+    int counter = 0;
     
+    //Convolution
+    ConvolutionDemoDSP convolutionDemoDSP;
+    //AudioFormatManager manager;
+    //std::unique_ptr<AudioFormatReaderSource> playSource;
+    //AudioTransportSource transportSource;
     
     
     ///__________________________
@@ -130,33 +157,39 @@ private: // Member variables
 
 
 
+
+
+
+
+
 class Soundmodel
 {
-public:
-    enum class SoundTyp
-    {
-        None, //without Body, without BarOrString
-        ExciteBody,  //Only Body, no BarOrString
-        StiffstringWithGuitar,
-        StiffstringWithVioline, //Bowing
-        IdealStringWithGuitar,
-        IdealStringWithVioline, //Bowing
-        MetalBarWithXylophon,
-        WoodBarWithXylophon
-    };
+    public:
+        enum class SoundTyp
+        {
+            None, //without Body, without BarOrString
+            ExciteBody,  //Only Body, no BarOrString
+            StiffstringWithGuitar,
+            StiffstringWithVioline, //Bowing
+            IdealStringWithGuitar,
+            IdealStringWithVioline, //Bowing
+            MetalBarWithXylophon,
+            WoodBarWithXylophon
+        };
     
-    void setSoundModel(SoundTyp t)
-    {
-        type = t;
-        
-    }
-    SoundTyp getSoundTyp()
-    {
-        return type;
-    }
+        void setSoundModel(SoundTyp t)
+        {
+            type = t;
+        }
+        SoundTyp getSoundTyp()
+        {
+            return type;
+        }
     
-private:
-    SoundTyp type {SoundTyp::None};
+    private:
+        SoundTyp type {SoundTyp::None};
+    
+    
     
 };
 
@@ -175,20 +208,111 @@ class ImpulseResponse
             PaperBox,
             OtherBox
         };
-
     
     
     void setImpulseResponseTyp(ImpulseResponseTyp IR)
     {
-        impulseResponsetyp = IR;
+        impulseResponseTyp = IR;
     }
     
     ImpulseResponseTyp getImpulseResponseTyp()
     {
-        return impulseResponsetyp;
+        return impulseResponseTyp;
     }
     
     private:
-    ImpulseResponseTyp impulseResponsetyp {ImpulseResponseTyp::Dirac};
+    ImpulseResponseTyp impulseResponseTyp {ImpulseResponseTyp::Dirac};
     
 };
+
+
+
+class Excitation
+{
+    public:
+        enum class ExcitationTyp
+        {
+            None,
+            Hardbow,
+            Softbow,
+            Hardpluck,
+            Softpluck,
+            MetalBar,
+            WoodBar,
+            Knocking
+        };
+    
+    
+        void setExcitationTyp(ExcitationTyp EX)
+        {
+            excitationTyp = EX;
+        }
+    
+        ExcitationTyp getExcitationTyp()
+        {
+            return excitationTyp;
+        }
+    
+    private:
+        ExcitationTyp excitationTyp {ExcitationTyp::Softpluck};
+
+};
+
+class Arpeggio
+{
+    public:
+        enum class ArpeggioTyp
+        {
+            None,
+            Up,
+            Down,
+            UpDown,
+            DownUp
+            
+        };
+    
+    
+        void setArpeggioTyp(ArpeggioTyp ARP)
+        {
+            arpeggioTyp = ARP;
+        }
+    
+        ArpeggioTyp getArpeggioTyp()
+        {
+            return arpeggioTyp;
+        }
+    
+    private:
+        ArpeggioTyp arpeggioTyp {ArpeggioTyp::Up};
+    
+};
+
+
+class Scale
+{
+public:
+    enum class ScaleTyp
+    {
+        Major,
+        Minor
+        
+    };
+    
+    
+    void setScaleTyp(ScaleTyp SC)
+    {
+        scaleTyp = SC;
+    }
+    
+    ScaleTyp getScaleTyp()
+    {
+        return scaleTyp;
+    }
+    
+private:
+    ScaleTyp scaleTyp {ScaleTyp::Major};
+    
+};
+
+
+

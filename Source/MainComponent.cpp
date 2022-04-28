@@ -1,11 +1,21 @@
 #include "MainComponent.h"
+#include "Convolution.h"
 
+#define JUCE_CALLTYPE
 
 
 
 //initialise classes from MainComponent.h
 Soundmodel soundmodel;
 ImpulseResponse impulseResponse;
+Excitation excitation;
+Arpeggio arpeggio;
+Scale scale;
+
+
+
+
+
 
 
 
@@ -36,76 +46,8 @@ MainComponent::MainComponent()
     
     
     
-    //======================addListeners
     
-    
-    
-    /* Add the Editor as a listener to the slider
-     
-     Once the slider is moved, it will send a message to all listeners, which will call their implementation of the "sliderValueChanged()" function.
-     */
-    
-        //Sliders
-    amplitudeSlider.addListener (this);
-    stringLengthSlider.addListener (this);
-    dampingSlider.addListener (this);
-    materialSlider.addListener (this);
-    
-    //Buttons
-    //buttonInstrument1.addListener(this);
-    //buttonInstrument2.addListener(this);
-    //buttonInstrument3.addListener(this);
-    //buttonInstrument4.addListener(this);
-    //startButton.addListener(this);
-    
-    //Comboboxes
-    body.addListener(this);
-    stringOrBarTyp.addListener(this);
-    instrument.addListener(this);
-    
-    
-    
-    
-    
-    
-    
-    //======================addAndMakeVidible Sliders, Buttons and Comboboxes
-    
-    
-    
-    // Make all components (slider, buttons...) visible
-    
-    addAndMakeVisible (amplitudeSlider);
-    addAndMakeVisible (stringLengthSlider);
-    addAndMakeVisible (dampingSlider);
-    addAndMakeVisible (materialSlider);
-    
-    
-    //addAndMakeVisible (labelPosition);
-    addAndMakeVisible (labelAmplitude);
-    addAndMakeVisible (labelStringLength);
-    addAndMakeVisible (labelDamping);
-    addAndMakeVisible (labelMaterial);
-    
-    
-    //addAndMakeVisible (startButton);
-    //addAndMakeVisible (buttonInstrument1);
-    //addAndMakeVisible (buttonInstrument2);
-    //addAndMakeVisible (buttonInstrument3);
-    //addAndMakeVisible (buttonInstrument4);
-    
-    
-    //Comboboxes
-    
-    addAndMakeVisible (instrument);
-    addAndMakeVisible (body);
-    addAndMakeVisible (stringOrBarTyp);
-    
-    
-   
-    
-
-    //================Display initial/overall conditions for all objects
+    //================Load All Graphics
     
     
     
@@ -208,28 +150,36 @@ MainComponent::MainComponent()
     
     
     
-    //SLIDERS
+    
+   
+    
+    
+    
+    
+    
+    // Set up all SLIDERS, ComboBoxes
+    
     /*
      - setRange (min, max, stepSize)
      - setValue (defaultValue)
      - setStyle, Labels, attached Components...
      */
-    amplitudeSlider.setRange (0, 1, 0.1);
-    amplitudeSlider.setValue (0.5);
-    amplitudeSlider.setSliderStyle(Slider::SliderStyle::Rotary);
-    amplitudeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
-    labelAmplitude.setText("Amplitude", dontSendNotification);
-    labelAmplitude.attachToComponent(&amplitudeSlider, false);
-    labelAmplitude.setJustificationType(juce::Justification::horizontallyCentred);
+    arpeggioSlider.setRange (1, 5, 1);
+    arpeggioSlider.setValue (1);
+    arpeggioSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    arpeggioSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    labelArpeggio.setText("Arpeggio", dontSendNotification);
+    labelArpeggio.attachToComponent(&arpeggioSlider, false);
+    labelArpeggio.setJustificationType(juce::Justification::horizontallyCentred);
     
-    stringLengthSlider.setRange (1, 3, 0.1);
-    stringLengthSlider.setValue (50);
-    stringLengthSlider.setSliderStyle(Slider::SliderStyle::Rotary);
-    stringLengthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
-    //stringLengthSlider.setTextValueSuffix(" Hz ");
-    labelStringLength.setText("Length", dontSendNotification);
-    labelStringLength.attachToComponent(&stringLengthSlider, false);
-    labelStringLength.setJustificationType(juce::Justification::horizontallyCentred);
+    scaleSlider.setRange (1, 2, 1);
+    scaleSlider.setValue (1);
+    scaleSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    scaleSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    //scaleSlider.setTextValueSuffix(" Hz ");
+    labelScale.setText("Scale", dontSendNotification);
+    labelScale.attachToComponent(&scaleSlider, false);
+    labelScale.setJustificationType(juce::Justification::horizontallyCentred);
     
     dampingSlider.setRange (0, 10, 0.1);
     dampingSlider.setValue (1);
@@ -239,13 +189,13 @@ MainComponent::MainComponent()
     labelDamping.attachToComponent(&dampingSlider, false);
     labelDamping.setJustificationType(juce::Justification::horizontallyCentred);
     
-    materialSlider.setRange (300, 2000, 10);
-    materialSlider.setValue (1000);
-    materialSlider.setSliderStyle(Slider::SliderStyle::Rotary);
-    materialSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
-    labelMaterial.setText("Material", dontSendNotification);
-    labelMaterial.attachToComponent(&materialSlider, false);
-    labelMaterial.setJustificationType(juce::Justification::horizontallyCentred);
+    speedSlider.setRange (100, 2000, 100);
+    speedSlider.setValue (500);
+    speedSlider.setSliderStyle(Slider::SliderStyle::Rotary);
+    speedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    labelSpeed.setText("speed", dontSendNotification);
+    labelSpeed.attachToComponent(&speedSlider, false);
+    labelSpeed.setJustificationType(juce::Justification::horizontallyCentred);
     
     
     
@@ -262,6 +212,63 @@ MainComponent::MainComponent()
     stringOrBarTyp.setJustificationType(4);
     
     body.setJustificationType(4);
+    
+    
+    
+    //======================addListeners
+     /* Add the Editor as a listener to the slider
+     Once the slider is moved, it will send a message to all listeners, which will call their implementation of the "sliderValueChanged()" function.
+     */
+    
+    //Sliders
+    arpeggioSlider.addListener (this);
+    scaleSlider.addListener (this);
+    dampingSlider.addListener (this);
+    speedSlider.addListener (this);
+    
+    //Buttons
+    //buttonInstrument1.addListener(this);
+    //buttonInstrument2.addListener(this);
+    //buttonInstrument3.addListener(this);
+    //buttonInstrument4.addListener(this);
+    //startButton.addListener(this);
+    
+    //Comboboxes
+    body.addListener(this);
+    stringOrBarTyp.addListener(this);
+    instrument.addListener(this);
+    
+    
+    
+    //======================addAndMakeVidible Sliders, Buttons and Comboboxes
+    
+    // Make all components (slider, buttons...) visible
+    
+    addAndMakeVisible (arpeggioSlider);
+    addAndMakeVisible (scaleSlider);
+    addAndMakeVisible (dampingSlider);
+    addAndMakeVisible (speedSlider);
+    
+    
+    //addAndMakeVisible (labelPosition);
+    addAndMakeVisible (labelArpeggio);
+    addAndMakeVisible (labelScale);
+    addAndMakeVisible (labelDamping);
+    addAndMakeVisible (labelSpeed);
+    
+    
+    //addAndMakeVisible (startButton);
+    //addAndMakeVisible (buttonInstrument1);
+    //addAndMakeVisible (buttonInstrument2);
+    //addAndMakeVisible (buttonInstrument3);
+    //addAndMakeVisible (buttonInstrument4);
+    
+    
+    //Comboboxes
+    
+    addAndMakeVisible (instrument);
+    addAndMakeVisible (body);
+    addAndMakeVisible (stringOrBarTyp);
     
     
 
@@ -306,9 +313,18 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     //also somehow gets the setSize
     
     // Start the graphics timer (refresh 15 times per second)
-    startTimerHz (15);
     
-    ///__________________________
+    
+    excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
+    arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::None);
+    
+    
+   //Convolution
+    dsp::ProcessSpec spec { sampleRate, static_cast<uint32>(samplesPerBlockExpected), 2 };
+    convolutionDemoDSP.resetConv();
+    convolutionDemoDSP.prepareConv(spec);
+    //transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    
 }
 
 
@@ -318,12 +334,190 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
 
 
+// mouse Click Excitation
+void MainComponent::mouseDown (const MouseEvent &e)
+{
+    //When Mouse is clicked, it excites. The value of Arpeggio-Slider decides if it one single tone or 5 tones in a row (start Timer)
+    if (arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::None)
+        excite(1);
+    else if (arpeggio.getArpeggioTyp() != Arpeggio::ArpeggioTyp::None)
+    {
+        startTimer (speedNumber);
+        excite(1);
+    }
+}
 
+void MainComponent::excite(float tone)
+{
+    DBG(tone);
+    float frequencyMultiplikator;
+    
+    //calculate pitch for every note dependend of scale, arpeggio
+    if (tone == 1)
+    {
+        frequencyMultiplikator = 1.00f; //rootnote
+    }
+    
+    else if (tone == 2)
+    {
+             if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.90f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.90f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.90f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.9;
+    }
+    
+    else if (tone == 3)
+    {
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.20f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.80f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.20f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.80f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.20f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.80f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.20f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.80f;
+    
+    }
+    else if (tone == 4)
+    {
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.30f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.70f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.90f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.30f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.70f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.10f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 0.90f;
+    
+    }
+    else if (tone == 5)
+    {
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.40f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.60f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.00f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Major && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 1.00f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Up)
+                frequencyMultiplikator = 1.40f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::Down)
+                frequencyMultiplikator = 0.60f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::UpDown)
+                frequencyMultiplikator = 1.00f;
+    
+            if (scale.getScaleTyp() == Scale::ScaleTyp::Minor && arpeggio.getArpeggioTyp() == Arpeggio::ArpeggioTyp::DownUp)
+                frequencyMultiplikator = 1.00f;
+    
+    }
+    
+    //After the choise of the "frequencyMultiplikator, we now choose the excitationSoundModel, that is selected
+    
+    if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::None)
+    {
+        oneDWave->exciteNone(0.8);
+        DBG("none");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::Knocking)
+    {
+        oneDWave->exciteExciteBody(0.8);
+        DBG("body");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::Softbow)
+    {
+        oneDWave->exciteIdealStringWithVioline(0.8);
+        oneDWave->setParamtersIdealStringVioline(frequencyMultiplikator);
+        DBG("nylonviola");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::Hardbow)
+    {
+        oneDWave->exciteStiffstringWithVioline(0.8);
+        oneDWave->setParamtersStiffStringVioline(frequencyMultiplikator);
+        DBG("stiffviola");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::Softpluck)
+    {
+        oneDWave->exciteIdealStringWithGuitar(0.8);
+        oneDWave->setParamtersIdealStringGuitar(frequencyMultiplikator);
+        DBG("nylonguitar");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::Hardpluck)
+    {
+        oneDWave->exciteStiffstringWithGuitar(0.8);
+        oneDWave->setParamtersStiffStringGuitar(frequencyMultiplikator);
+        DBG("westernguitar");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::MetalBar)
+    {
+        oneDWave->exciteMetalBarWithXylophon(0.8);
+        oneDWave->setParamtersMetalBar(frequencyMultiplikator);
+        DBG("metalBar");
+    }
+    else if (excitation.getExcitationTyp() == Excitation::ExcitationTyp::WoodBar)
+    {
+        oneDWave->exciteWoodBarWithXylophon(0.8);
+        oneDWave->setParamtersWoodenBar(frequencyMultiplikator);
+        DBG("woodbar");
+    }
+    
 
-
-
-
-
+}
 
 
 
@@ -343,22 +537,23 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
     // Prevent noise in the buffer.
     bufferToFill.clearActiveBufferRegion();
-
+    float outputSoundModel = 0.0;
+    
     // Get the number of channels.
     int numChannels = bufferToFill.buffer->getNumChannels();
+    
+   
+    
     
     // Get pointers to output locations.
     float* const channelData1 = bufferToFill.buffer->getWritePointer (0, bufferToFill.startSample);
     float* const channelData2 = numChannels > 1 ? bufferToFill.buffer->getWritePointer (1, bufferToFill.startSample) : nullptr;
 
     // filling two vectors with outputs
-    
-    float outputSoundModel = 0.0;
-    float output = 0.0;
-
     std::vector<float* const*> curChannel {&channelData1, &channelData2};
     
-    
+    //float output = 0.0;
+
     
     
     
@@ -370,158 +565,185 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
         
         
         
-            if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::None)
-            {
-                oneDWave->calculateSchemeNone();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("None");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::ExciteBody)
-            {
-                oneDWave->calculateSchemeExciteBody();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-               // DBG("ExciteBody");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithGuitar)
-            {
-                oneDWave->calculateSchemeStiffstringWithGuitar();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("StiffstringWithGuitar");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithVioline)
-            {
-                oneDWave->calculateSchemeStiffstringWithVioline();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("StiffstringWithVioline");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithGuitar)
-            {
-                oneDWave->calculateSchemeIdealStringWithGuitar();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("IdealStringWithGuitar");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithVioline)
-            {
-                oneDWave->calculateSchemeIdealStringWithVioline();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("IdealStringWithVioline");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::MetalBarWithXylophon)
-            {
-                oneDWave->calculateSchemeMetalBarWithXylophon();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("MetalBarWithXylophon");
-            }
-            else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::WoodBarWithXylophon)
-            {
-                oneDWave->calculateSchemeWoodBarWithXylophon();
-                oneDWave->updateStates();
-                outputSoundModel = oneDWave->getOutput (0.8);
-                //DBG("WoodBarWithXylophon");
-            }
-        
-        
-        
-        
-        
-        //==========Calculate all ImpulseResponses
-        
-        //To Do:: Security, that Body/ImpulseResponse isn't switched while calculation is done
-        
-        
-        if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::Dirac)
+        if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::None)
         {
-            //Do load Audio "Dirac", make sure it is not loaded every n or buffer
-            //Do convolution with Dirac
-            output = outputSoundModel;
-            //DBG("Dirac");
+            oneDWave->calculateSchemeNone();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            //DBG("None");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::ExciteBody)
+        {
+            oneDWave->calculateSchemeExciteBody();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            //DBG("ExciteBody");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithGuitar)
+        {
+            oneDWave->calculateSchemeStiffstringWithGuitar();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutputw(0.4);
+            outputSoundModel = oneDWave->getOutputy(0.4);
+            outputSoundModel = oneDWave->getOutputf(0.4);
+            outputSoundModel = oneDWave->getOutputm(0.4);
+            outputSoundModel = oneDWave->getOutputb(0.4);
+            //DBG("StiffstringWithGuitar");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithVioline)
+        {
+            oneDWave->calculateSchemeStiffstringWithVioline();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            //DBG("StiffstringWithVioline");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithGuitar)
+        {
+            oneDWave->calculateSchemeIdealStringWithGuitar();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput(0.8);
+            outputSoundModel = oneDWave->getOutputw(0.4);
+            outputSoundModel = oneDWave->getOutputy(0.4);
+            outputSoundModel = oneDWave->getOutputf(0.4);
+            outputSoundModel = oneDWave->getOutputm(0.4);
+            outputSoundModel = oneDWave->getOutputb(0.4);
+
+            
+            //DBG("IdealStringWithGuitar");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithVioline)
+        {
+            oneDWave->calculateSchemeIdealStringWithVioline();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            //DBG("IdealStringWithVioline");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::MetalBarWithXylophon)
+        {
+            oneDWave->calculateSchemeMetalBarWithXylophon();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutputw(0.4);
+            outputSoundModel = oneDWave->getOutputy(0.4);
+            outputSoundModel = oneDWave->getOutputf(0.4);
+            outputSoundModel = oneDWave->getOutputm(0.4);
+            outputSoundModel = oneDWave->getOutputb(0.4);
+            //  DBG("MetalBarWithXylophon");
+        }
+        else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::WoodBarWithXylophon)
+        {
+            oneDWave->calculateSchemeWoodBarWithXylophon();
+            oneDWave->updateStates();
+            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutputw(0.4);
+            outputSoundModel = oneDWave->getOutputy(0.4);
+            outputSoundModel = oneDWave->getOutputf(0.4);
+            outputSoundModel = oneDWave->getOutputm(0.4);
+            outputSoundModel = oneDWave->getOutputb(0.4);
+            //DBG("WoodBarWithXylophon");
         }
         
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::GuitarBody)
         
-        {
-            //Do load Audio "GuitarBody", make sure it is not loaded every n or buffer
-            //Do convultion with Guitar Body
-            output = outputSoundModel;
-            //DBG("Guitar Body");
-        }
         
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::ViolinBody)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Violin Body");
-        }
-            
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::MetalBox)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Metal Box");
-        }
-            
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::WoodBox)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Wood Box");
-        }
-        
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::WoodBox)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Wood Box");
-        }
-            
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::PaperBox)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Paper Box");
-        }
-            
-        else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::OtherBox)
-            
-        {
-            //Do load Audio , make sure it is not loaded every n or buffer
-            //Do convolutiion
-            output = outputSoundModel;
-            //DBG("Other Box");
-        }
-            
-      
         
         // Send the output to both channels.
         for (int channel = 0; channel < numChannels; ++channel)
-            curChannel[channel][0][i] = limit(output, -1.0, 1.0);
+            curChannel[channel][0][i] = limit(outputSoundModel, -1.0, 1.0);
+        
+    } //end of Sample-sharp calculation
     
    
     
     
     
+    /*
+    //==========Calculate all ImpulseResponses
+    
+    
+    if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::Dirac)
+    {
+        //Do load Audio "Dirac", make sure it is not loaded every n or buffer
+        //Do convolution with Dirac
+        convolutionDemoDSP.updateParametersConvDirac();
+        DBG("Dirac");
+        
     }
     
-    ///__________________________
-
-} // sends it to speakers after that
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::GuitarBody)
+        
+    {
+        //Do load Audio "GuitarBody", make sure it is not loaded every n or buffer
+        //Do convultion with Guitar Body
+        convolutionDemoDSP.updateParametersConvGuitar();
+        DBG("Guitar Body");
+    }
+    
+    
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::ViolinBody)
+      
+    {
+        //Do load Audio , make sure it is not loaded every n or buffer
+        //Do convolutiion
+        convolutionDemoDSP.updateParametersConvVioline();
+        DBG("Violin Body");
+    }
+    
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::MetalBox)
+      
+    {
+        //Do load Audio , make sure it is not loaded every n or buffer
+        //Do convolutiion
+        convolutionDemoDSP.updateParametersConvMetalBox();
+        DBG("Metal Box");
+    }
+    
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::WoodBox)
+      
+    {
+        //Do load Audio , make sure it is not loaded every n or buffer
+        //Do convolutiion
+        convolutionDemoDSP.updateParametersConvWoodBox();
+        DBG("Wood Box");
+    }
+    
+    
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::PaperBox)
+      
+    {
+        //Do load Audio , make sure it is not loaded every n or buffer
+        //Do convolutiion
+        convolutionDemoDSP.updateParametersConvPaperBox();
+        DBG("Paper Box");
+    }
+    
+    else if (impulseResponse.getImpulseResponseTyp() == ImpulseResponse::ImpulseResponseTyp::OtherBox)
+      
+    {
+        //Do load Audio , make sure it is not loaded every n or buffer
+        //Do convolutiion
+        convolutionDemoDSP.updateParametersConvOtherBox();
+        DBG("Other Box");
+    }
+    
+    */
+    
+    //ConvolutionEngine
+    AudioBlock<float> block (*bufferToFill.buffer);
+    convolutionDemoDSP.processConv(dsp::ProcessContextReplacing<float> (block));
+    
+    
+    
+    
+    
+   
+    
+    
+    
+    
+    
+}
+    
 
 
 
@@ -637,10 +859,10 @@ void MainComponent::resized()
     
     //SLIDERS
     
-    amplitudeSlider.setBounds(sliderArea1);
-    stringLengthSlider.setBounds (sliderArea2);
+    arpeggioSlider.setBounds(sliderArea1);
+    scaleSlider.setBounds (sliderArea2);
     dampingSlider.setBounds (sliderArea3);
-    materialSlider.setBounds (sliderArea4);
+    speedSlider.setBounds (sliderArea4);
     
     //startButton.setBounds(StartButtonAreaAll);
     //buttonInstrument1.setBounds(buttonArea1);
@@ -713,8 +935,26 @@ void MainComponent::resized()
 
 void MainComponent::timerCallback()
 {
-    // Repaint the application. This function gets called 15x per second (as defined in prepareToPlay)
-    repaint();
+    // Silvin used that to repaint the application.
+    //repaint();
+    
+    // We are using it for exciting several times. Starting with mouse down
+    
+    counter++;
+    if (counter == 1)
+        excite(2);
+    else if (counter == 2)
+        excite(3);
+    else if (counter == 3)
+        excite(4);
+    else if (counter == 4)
+        excite(5);
+    else
+    {
+        stopTimer();
+        counter = 0;
+    }
+    
 }
 
 // Implementation of the limiter
@@ -815,15 +1055,71 @@ void MainComponent::sliderValueChanged (Slider* slider)
      Obtaining the slider value happens through the Slider class' "getValue()" function.
      
      */
-    if (slider == &amplitudeSlider) //HERE IT IS DEFINED, WHAT THE SLIDER ACTUALLY DOES, or in which value the change is written
-        oneDWave->setAmplitude(amplitudeSlider.getValue());
-    else if (slider == &stringLengthSlider)
-        oneDWave->setStringLength (stringLengthSlider.getValue());
+    if (slider == &arpeggioSlider) //HERE IT IS DEFINED, WHAT THE SLIDER ACTUALLY DOES, or in which value the change is written
+        exchangeArpeggioNumber(arpeggioSlider.getValue());
+    
+    
+    else if (slider == &scaleSlider)
+        exchangeScaleNumber (scaleSlider.getValue());
     else if (slider == &dampingSlider)
-        oneDWave->setDamping (dampingSlider.getValue());
-    else if (slider == &materialSlider)
-        oneDWave->setWavespeed (materialSlider.getValue());
+        setDamping (dampingSlider.getValue());
+    else if (slider == &speedSlider)
+        setSpeed (speedSlider.getValue());
 }
+
+
+
+
+
+
+void MainComponent::exchangeArpeggioNumber (double arpeggioToSet)
+{
+    if (arpeggioToSet == 1)
+        arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::None);
+    
+    else if (arpeggioToSet == 2)
+        arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::Up);
+        //if body = guitar
+            //play Arp Guitar Up
+        //if body = violin
+            //play Arp Guitar Up
+        //if body = xylohon
+            //play Arp Guitar Up
+    
+    else if (arpeggioToSet == 3)
+        arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::Down);
+    
+    else if (arpeggioToSet == 4)
+        arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::UpDown);
+    
+    else if (arpeggioToSet == 5)
+        arpeggio.setArpeggioTyp(Arpeggio::ArpeggioTyp::DownUp);
+    
+}
+
+
+
+
+
+
+void MainComponent::exchangeScaleNumber(double scaleToSet)
+{
+    if (scaleToSet == 1)
+        scale.setScaleTyp(Scale::ScaleTyp::Major);
+    
+    else if (scaleToSet == 2)
+        scale.setScaleTyp(Scale::ScaleTyp::Minor);
+ 
+    
+}
+void MainComponent::setDamping (double dampingToSet)
+{
+    oneDWave->setDamping(dampingToSet);
+    
+}
+
+
+
 
 
 void MainComponent::clearImages()
@@ -864,13 +1160,13 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
     
     if (comboBoxThatHasChanged == &instrument)
     {
-        //Here it is decided what happens if the instrument is coosen.
+        //Here it is decided what happens if the instrument is choosen.
         //Pictures are cleared
         //The other comboboxes are reset and get new values
         
-        if (instrument.getSelectedId() == 1)
+        if (instrument.getSelectedId() == 1) //String
         {
-            DBG("String");
+            //DBG("String");
             stringOrBarTyp.clear();
             stringOrBarTyp.setText("String Typ");
             stringOrBarTyp.addItem("None",11);
@@ -891,6 +1187,11 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
             //Choose Impulse response = DiracImpluse
             impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::Dirac);
+            //Convolution -> UpdateParamters
+            convolutionDemoDSP.updateParametersConvDirac();
+            DBG("Dirac");
+            //Set Excitation to none
+            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
             
             //To Do: changeColor(red)
             
@@ -924,8 +1225,13 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
             //Choose Impulse response = DiracImpluse
             impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::Dirac);
+            //Convolution -> UpdateParamters
+            convolutionDemoDSP.updateParametersConvDirac();
+            DBG("Dirac");
+            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
             
             //To Do: changeColor(blue)
+            //To do: show text: Now choose body and/or string, bar
             
             
         }
@@ -949,12 +1255,16 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
  
             if (body.getSelectedId() == 111) //No Body
             {
+                
+                
                     // no picture if no strings selected. Otherwise strings
                     if (stringOrBarTyp.getSelectedId() == 11) //No Strings
                     {
                             //show none
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
+                        
                     }
                 
                     else if (stringOrBarTyp.getSelectedId() == 12) // WesternGuitarStrings
@@ -962,20 +1272,27 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageOnlyWesternString);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithGuitar);
+                            //oneDWave->setParamtersStiffStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardpluck);
+                        
                     }
                     else if (stringOrBarTyp.getSelectedId() == 13) // NylonStrings
                     {
                             addAndMakeVisible(mImageOnlyNylonString);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::IdealStringWithGuitar);
+                            //oneDWave->setParamtersIdealStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softpluck);
                     }
                 
                     else DBG("Problem with Picture1");
                 
                 
                 //Choose Impulse response = DiracImpluse
-            impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::Dirac);
-                
+                impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::Dirac);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvDirac();
+                DBG("Dirac");
                 
             }
         
@@ -987,23 +1304,31 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyGuitar); //Show picture Guitar Body without Strings
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 12) // WesternGuitarStrings
                     {
                             addAndMakeVisible(mImageWesternStringGuitar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithGuitar);
+                            //oneDWave->setParamtersStiffStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardpluck);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 13) // NylonStrings
                     {
                             addAndMakeVisible(mImageNylonStringGuitar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::IdealStringWithGuitar);
+                            //oneDWave->setParamtersIdealStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softpluck);
                     }
                     else DBG("Problem with Picture2");
                 
                     //Choose Impulse response = GuitarBody
                     impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::GuitarBody);
+                    //Convolution -> UpdateParamters
+                    convolutionDemoDSP.updateParametersConvGuitar();
+                    DBG("GuitarBody");
             }
             
             
@@ -1014,23 +1339,32 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyVioline); //Show picture Violine Body without Strings
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 12) // WesternViolineStrings
                     {
                             addAndMakeVisible(mImageWesternStringVioline);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithVioline);
+                            //oneDWave->setParamtersStiffStringVioline();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardbow);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 13) // NylonStrings
                     {
                             addAndMakeVisible(mImageNylonStringVioline);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::IdealStringWithVioline);
+                            //oneDWave->setParamtersIdealStringVioline();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softbow);
                     }
                     else DBG("Problem with Picture3");
                 
                 //Choose Impulse response = ViolineBody
                 impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::ViolinBody);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvVioline();
+                DBG("ViolineBody");
+            
             }
         
         }//End String instrument
@@ -1047,6 +1381,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             //show none
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
                     }
                     
                     else if (stringOrBarTyp.getSelectedId() == 22) // MetalBar
@@ -1054,17 +1389,24 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageMetalBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                            //oneDWave->setParamtersMetalBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 23) // WoodenBAr
                     {
                             addAndMakeVisible(mImageWoodBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                            //oneDWave->setParamtersWoodenBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                     }
                     else DBG("Problem with Picture30");
                    
                     //Choose Impulse response = Dirac
                     impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::Dirac);
+                    //Convolution -> UpdateParamters
+                    convolutionDemoDSP.updateParametersConvDirac();
+                    DBG("Dirac");
                 }
                 
             
@@ -1075,6 +1417,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyMetalBox); //Show picture Metal Box without Bars
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 22) // MetalBar
                     {
@@ -1082,6 +1425,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageMetalBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                            //oneDWave->setParamtersMetalBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 23) // WoodenBAr
                     {
@@ -1089,6 +1434,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageWoodBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                            //oneDWave->setParamtersWoodenBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                     }
                     else DBG("Problem with Picture30");
                 
@@ -1096,6 +1443,9 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                 
                 //Choose Impulse response = MetalBox
                 impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::MetalBox);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvMetalBox();
+                DBG("MetalBox");
             
             }
             
@@ -1106,6 +1456,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyWoodBox); //Show picture Metal Box without Bars
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 22) // MetalBar
                     {
@@ -1113,6 +1464,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageMetalBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                            //oneDWave->setParamtersMetalBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 23) // WoodenBAr
                     {
@@ -1120,11 +1473,16 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageWoodBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                            //oneDWave->setParamtersWoodenBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                     }
                     else DBG("Problem with Picture31");
                 
                 //Choose Impulse response = WoodBox
                 impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::WoodBox);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvWoodBox();
+                DBG("WoodBox");
             }
             
             else if (body.getSelectedId() == 214)  //Paper Box
@@ -1134,6 +1492,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyPaperBox); //Show picture Metal Box without Bars
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 22) // MetalBar
                     {
@@ -1141,6 +1500,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageMetalBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                            //oneDWave->setParamtersMetalBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 23) // WoodenBAr
                     {
@@ -1148,11 +1509,16 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageWoodBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                            //oneDWave->setParamtersWoodenBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                     }
                     else DBG("Problem with Picture32");
                 
                 //Choose Impulse response = PaperBox
                 impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::PaperBox);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvPaperBox();
+                DBG("PaperBox");
                 
             }
             
@@ -1163,6 +1529,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyOther); //Show picture Metal Box without Bars
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 22) // MetalBar
                     {
@@ -1170,6 +1537,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageMetalBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                            //oneDWave->setParamtersMetalBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     }
                     else if (stringOrBarTyp.getSelectedId() == 23) // WoodenBAr
                     {
@@ -1177,11 +1546,16 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageWoodBar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                            //oneDWave->setParamtersWoodenBar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                     }
                     else DBG("Problem with Picture33");
                 
                 //Choose Impulse response = OtherBox
                impulseResponse.setImpulseResponseTyp(ImpulseResponse::ImpulseResponseTyp::OtherBox);
+                //Convolution -> UpdateParamters
+                convolutionDemoDSP.updateParametersConvOtherBox();
+                DBG("Other Box");
             }
         
         
@@ -1215,12 +1589,14 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             //show none
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
                         }
                         else if (body.getSelectedId() == 112) // GuitarBody
                         {
                             addAndMakeVisible(mImageBodyGuitar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                     
                         else if (body.getSelectedId() == 113) // ViolinBody
@@ -1228,6 +1604,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyVioline);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                         else DBG("Problem with Picture10");
                     
@@ -1244,18 +1621,24 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageOnlyWesternString);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithGuitar);
+                            //oneDWave->setParamtersStiffStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardpluck);
                         }
                         else if (body.getSelectedId() == 112) // GuitarBody
                         {
                             addAndMakeVisible(mImageWesternStringGuitar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithGuitar);
+                            //oneDWave->setParamtersStiffStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardpluck);
                         }
                         else if (body.getSelectedId() == 113) // ViolinBody
                         {
                             addAndMakeVisible(mImageWesternStringVioline);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithVioline);
+                            //oneDWave->setParamtersStiffStringVioline();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Hardbow);
                         }
                         else DBG("Problem with Picture11");
                     
@@ -1271,18 +1654,25 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageOnlyNylonString);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::IdealStringWithGuitar);
+                            //oneDWave->setParamtersIdealStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softpluck);
+                            
                         }
                         if (body.getSelectedId() == 112) // GuitarBody
                         {
                             addAndMakeVisible(mImageNylonStringGuitar);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::IdealStringWithGuitar);
+                            //oneDWave->setParamtersIdealStringGuitar();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softpluck);
                         }
                         else if (body.getSelectedId() == 113) // ViolinBody
                         {
                             addAndMakeVisible(mImageNylonStringVioline);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::StiffstringWithVioline);
+                            //oneDWave->setParamtersIdealStringVioline();
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Softbow);
                         }
                         else DBG("Problem with Picture3");
                         //Choose Parameters for c, kappa, T, Sigma, lambda etc.
@@ -1302,6 +1692,7 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             //none
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::None);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::None);
                         }
                     
                         else if (body.getSelectedId() == 212) // Metal Box
@@ -1309,24 +1700,28 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                             addAndMakeVisible(mImageBodyMetalBox);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                         else if (body.getSelectedId() == 213) // WoodenBox
                         {
                             addAndMakeVisible(mImageBodyWoodBox);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                         else if (body.getSelectedId() == 214) // PaperBox
                         {
                             addAndMakeVisible(mImageBodyPaperBox);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                         else if (body.getSelectedId() == 215) // OtherBox
                         {
                             addAndMakeVisible(mImageBodyOther);
                             //Choose SoundModel Excitation
                             soundmodel.setSoundModel(Soundmodel::SoundTyp::ExciteBody);
+                            excitation.setExcitationTyp(Excitation::ExcitationTyp::Knocking);
                         }
                     
                         else DBG("Problem with Picture40");
@@ -1364,6 +1759,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                     
                         //Choose SoundModel Excitation
                         soundmodel.setSoundModel(Soundmodel::SoundTyp::MetalBarWithXylophon);
+                        //oneDWave->setParamtersMetalBar();
+                        excitation.setExcitationTyp(Excitation::ExcitationTyp::MetalBar);
                     
                    
                 }
@@ -1398,6 +1795,8 @@ void MainComponent::comboBoxChanged (ComboBox *comboBoxThatHasChanged)
                     
                     //Choose SoundModel Excitation
                     soundmodel.setSoundModel(Soundmodel::SoundTyp::WoodBarWithXylophon);
+                    //oneDWave->setParamtersWoodenBar();
+                    excitation.setExcitationTyp(Excitation::ExcitationTyp::WoodBar);
                 }
         } //End Xylophon
         

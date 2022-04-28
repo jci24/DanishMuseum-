@@ -10,10 +10,13 @@
 
 #include <JuceHeader.h>
 
+
+
+
 //==============================================================================
 /*
 */
-class OneDWave  : public juce::Component
+class OneDWave: public juce::Component
 {
 public:
     OneDWave (double k); // initialise the model with the time step // constructor / destructor
@@ -26,21 +29,18 @@ public:
     
     
     //======== Mouse Trigger ==============
-    void mouseDown (const MouseEvent &e) override;
+    //void mouseDown (const MouseEvent &e) override;
     
     // Called when a mouse button is pressed.
     
     // Function to visualise the state of the system.
     Path visualiseState (Graphics& g);
     
-    // Function to excite the system.
     
-    /* to Do:
+    
+    // Function to excite the system.
      
-     //The idea behind is that, the sound might change with the excitation. So how can we make sound a stiffString different from an indeal string? Or a MetallBar from a Woodbar? We should take the excitation also into consideration.
-     
-     
-     
+    //==============Define all different Types of Excitation==============
     void exciteNone (double excitationLoc);
     void exciteExciteBody (double excitationLoc);
     void exciteStiffstringWithGuitar (double excitationLoc);
@@ -49,9 +49,19 @@ public:
     void exciteIdealStringWithVioline (double excitationLoc);
     void exciteMetalBarWithXylophon (double excitationLoc);
     void exciteWoodBarWithXylophon (double excitationLoc);
-    */
     
-    void excite (double excitationLoc);
+    
+    //==============Define all different ParameterSets for different Strings, ==============
+    void setParamtersStiffStringGuitar(float frequencyMultiplikator);
+    void setParamtersIdealStringGuitar(float frequencyMultiplikator);
+    void setParamtersStiffStringVioline(float frequencyMultiplikator);
+    void setParamtersIdealStringVioline(float frequencyMultiplikator);
+    void setParamtersMetalBar(float frequencyMultiplikator);
+    void setParamtersWoodenBar(float frequencyMultiplikator);
+    
+   
+    
+    
     
     //Custom Functions
     // Function containing the update equation.
@@ -84,21 +94,20 @@ public:
     
     // Get the output at a specified ratio of the length of the system
     float getOutput (float outRatio) { return u[1][(int)floor(outRatio * N)]; };
+    float getOutputw(float outRatio) { return w[1][(int)floor(outRatio * N)]; };
+    float getOutputy(float outRatio) { return y[1][(int)floor(outRatio * N)]; };
+    float getOutputf(float outRatio) { return f[1][(int)floor(outRatio * N)]; };
+    float getOutputm(float outRatio) { return m[1][(int)floor(outRatio * N)]; };
+    float getOutputb(float outRatio) { return b[1][(int)floor(outRatio * N)]; };
+    
+    void setDamping (double dampingToSet)
+    {
+        sigma0 = dampingToSet; //Here Sigma0 gets defined and updated, everytime a slider is changed.
+    }
     
  
-    double amplitude;
-    double damping;
-    double stringLength;
-    double wavespeed;
     
-    
-    void setAmplitude (double amplitudeToSet) { amplitude = amplitudeToSet; };
-    void setStringLength (double stringLengthToSet) { stringLength = stringLengthToSet; };
-    void setDamping (double dampingToSet) { damping = dampingToSet; };
-    void setWavespeed (double wavespeedToSet) {wavespeed = wavespeedToSet;};
- 
-    
-    
+    double sigma0;
     
 private:
     
@@ -106,29 +115,31 @@ private:
     double k; // Time step (in s)
     double c; // Wave speed (in m/s)
     double h; // Grid spacing (in m)
-    double hBar;
     double L; // Length (in m)
-    double B0;
-    double sigma0;
+    
+    double hBar;
+    double kappa1;
+
+    double rho, A, T, E, I, cSq, kappaSq,muSq, hStiff, NStiff;
+    double r;
+    double stabilityTerm;
+    
     double sigma1;
-    double kappa;
     
     double lambdaSq; // Courant number squared to be used in the update equation
-    
+    double lambdaSqBar;
     double N; // number of intervals (number of grid points is N+1)
+    double NBar;
     
-    bool excitationFlag = false;
-    bool clamped = true;
-    double excitationLoc = 0.5;
+    bool shouldExcite;
 
     // A vector of 3 vectors saving the states of the system at n+1, n and n-1
     std::vector<std::vector<double>> uStates;
     std::vector<std::vector<double>> wStates;
-    std::vector<std::vector<double>> xStates;
     std::vector<std::vector<double>> yStates;
-    std::vector<std::vector<double>> zStates;
-    std::vector<std::vector<double>> nStates;
-
+    std::vector<std::vector<double>> fStates;
+    std::vector<std::vector<double>> mStates;
+    std::vector<std::vector<double>> bStates;
     
     // Pointers to the 3 vectors in uStates. The first index indicates the time index (0 -> n+1, 1 -> n, 2 -> n-1) and the second index indicates the spatial index.
     /*
@@ -139,13 +150,13 @@ private:
      */
     std::vector<double*> u;
     std::vector<double*> w;
-    std::vector<double*> x;
     std::vector<double*> y;
-    std::vector<double*> z;
-    std::vector<double*> n;
+    std::vector<double*> f;
+    std::vector<double*> m;
+    std::vector<double*> b;
     
     
-    
+    double Adiv, B0, B1, B2, C0, C1, S0, S1;
     
     
         

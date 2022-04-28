@@ -4,7 +4,7 @@
               displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="fzqTFQ" name="RealTimeFDTD">
     <GROUP id="{AFE7F865-9B22-1552-138D-393008ADA106}" name="Source">
-      <FILE id="nCxbj3" name="Convolution.h" compile="0" resource="0" file="Source/Convolution.h"/>
+      <FILE id="xMuGHq" name="Convolution.h" compile="0" resource="0" file="Source/Convolution.h"/>
       <FILE id="MSsjL3" name="OneDWave.cpp" compile="1" resource="0" file="Source/OneDWave.cpp"/>
       <FILE id="XJTbic" name="OneDWave.h" compile="0" resource="0" file="Source/OneDWave.h"/>
       <FILE id="pSzZcr" name="MainComponent.cpp" compile="1" resource="0"
@@ -13,6 +13,20 @@
       <FILE id="IoP5SW" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
     </GROUP>
     <GROUP id="{250E046E-8C90-7162-01E4-1CB47C331FE5}" name="Resources">
+      <GROUP id="{DEF188CF-9704-80A0-5EE3-FCC23874EE18}" name="IR">
+        <FILE id="pRNTfH" name="03MetalBox_Hammer.wav" compile="0" resource="1"
+              file="Resources/IR/03MetalBox_Hammer.wav"/>
+        <FILE id="BK0xke" name="AcGuitarHammerMix.wav" compile="0" resource="1"
+              file="Resources/IR/AcGuitarHammerMix.wav"/>
+        <FILE id="WOLLci" name="AcGuitarSweepMix.wav" compile="0" resource="1"
+              file="Resources/IR/AcGuitarSweepMix.wav"/>
+        <FILE id="lFoJ2M" name="cassette_recorder.wav" compile="0" resource="1"
+              file="Resources/IR/cassette_recorder.wav"/>
+        <FILE id="l341J2" name="guitar_amp.wav" compile="0" resource="1" file="Resources/IR/guitar_amp.wav"/>
+        <FILE id="TPTUvA" name="reverb_ir.wav" compile="0" resource="1" file="Resources/IR/reverb_ir.wav"/>
+        <FILE id="p9Zup4" name="Space4ArtGallery.wav" compile="0" resource="1"
+              file="Resources/IR/Space4ArtGallery.wav"/>
+      </GROUP>
       <FILE id="Mlu2TT" name="violinNylonStrings.jpg" compile="0" resource="1"
             file="Resources/violinNylonStrings.jpg"/>
       <FILE id="jFqQ0u" name="Alurohr.jpg" compile="0" resource="1" file="Resources/Alurohr.jpg"/>
@@ -58,6 +72,7 @@
         <MODULEPATH id="juce_graphics" path="../newJUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../newJUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2019 targetFolder="Builds/VisualStudio2019">
@@ -77,6 +92,7 @@
         <MODULEPATH id="juce_graphics" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="/Users/SilvinW/repositories/newJUCE/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2019>
     <VS2022 targetFolder="Builds/VisualStudio2022">
@@ -96,6 +112,7 @@
         <MODULEPATH id="juce_graphics" path="C:\JUCE\modules"/>
         <MODULEPATH id="juce_gui_basics" path="C:\JUCE\modules"/>
         <MODULEPATH id="juce_gui_extra" path="C:\JUCE\modules"/>
+        <MODULEPATH id="juce_dsp" path="../../../JUCE/modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>
@@ -107,6 +124,7 @@
     <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
