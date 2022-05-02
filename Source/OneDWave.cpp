@@ -23,66 +23,18 @@ OneDWave::OneDWave(double kIn) : k (kIn) // <- This is an initialiser list. It i
     
      c = 300; // Wave speed (in m/s)
      L = 3; // Length (in m) // Time step (in s)
-
-     // Stiff String
-     sigma0 = 1;
-     sigma1 = 0.01;
-     T = 300;
-     rho = 7850;
-     r = 0.0005;
-     A = r * r * double_Pi;
-     I = r * r * r * r * double_Pi * 0.25;
-     E = 2e11;
-     cSq = T / (rho * A);
-     kappaSq = E * I / (rho * A);
-     stabilityTerm = cSq * k * k + 4.0 * sigma1 * k;
-     hStiff = sqrt(0.5 * (stabilityTerm + sqrt((stabilityTerm * stabilityTerm) + 16.0 * kappaSq * k * k)));
-     NStiff = floor(L / hStiff);
-     hStiff = L / NStiff;
-     
-
-
-     
-     // Coefficients used for damping
-     S0 = sigma0 * k;
-     S1 = (2.0 * sigma1 * k) / (hStiff * hStiff);
-
-     // Scheme coefficients
-     B0 = 2.0 - 2.0 * lambdaSq - 6.0 * muSq - 2.0 * S1; // u_l^n
-     B1 = lambdaSq + 4.0 * muSq + S1;                   // u_{l+-1}^n
-     B2 = -muSq;                                        // u_{l+-2}^n
-     C0 = -1.0 + S0 + 2.0 * S1;                         // u_l^{n-1}
-     C1 = -S1;                                          // u_{l+-1}^{n-1}
-
-     Adiv = 1.0 / (1.0 + S0);                           // u_l^{n+1}
-
-     // Divide by u_l^{n+1} term
-     B0 *= Adiv;
-     B1 *= Adiv;
-     B2 *= Adiv;
-     C0 *= Adiv;
-     C1 *= Adiv;
-
-
-     
-     
-    //Ideal String
+     sigma1 = 0.005;
+     kappa1 = 0.001;
+     //stabilityTerm = pow(c, 2) * pow(k, 2) + 4 * sigma1 * k;
      h = c * k; // Grid spacing (in m)
      N = floor(L / h);
      h = L / N;
-
-     //Bar
-     kappa1 = 0.006;
-     hBar = sqrt(2 * kappa1 * k);
-     NBar = floor(L / hBar);
-     hBar = L / NBar;
-
      
-
-     lambdaSq = c * c * k * k / (h * h);
+     lambdaSq = c*c * k*k / (h*h) ;
+     sigma0 = 1;
      
      
-     //B0 = (2 - 2) * lambdaSq;
+     
      
      //DBG (lambdaSq);
      //StabilityCheck
@@ -95,42 +47,13 @@ OneDWave::OneDWave(double kIn) : k (kIn) // <- This is an initialiser list. It i
     // Initialise vectors containing the state of the system
     uStates = std::vector<std::vector<double>> (3, // initializing a vector of vectors (a matrix) or 3xN+1
                                                 std::vector<double>(N+1, 0)); // initializing a vector, with length, content
-    wStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
-                                                std::vector<double>(N+1, 0)); // initializing a vector, with length, content
-    yStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
-                                                std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
-    fStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
-                                                std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
-    mStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
-                                                std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
-    bStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
-                                                std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
     
     // Initialise vector of pointers to the states
     u.resize (3, nullptr);
-    w.resize (3, nullptr);
-    y.resize (3, nullptr);
-    f.resize(3, nullptr);
-    m.resize(3, nullptr);
-    b.resize(3, nullptr);
-
     
     // Make set memory addresses to first index of the state vectors.
     for (int i = 0; i < 3; ++i)
         u[i] = &uStates[i][0];
-    for (int i = 0; i < 3; ++i)
-        w[i] = &wStates[i][0];
-    for (int i = 0; i < 3; ++i)
-        y[i] = &yStates[i][0];
-    for (int i = 0; i < 3; ++i)
-        f[i] = &fStates[i][0];
-    for (int i = 0; i < 3; ++i)
-        m[i] = &mStates[i][0];
-    for (int i = 0; i < 3; ++i)
-        b[i] = &bStates[i][0];
-
-    
-
     
     // Excite at the start halfway along the system.
     exciteStiffstringWithGuitar(0.5); // excite function
@@ -178,12 +101,6 @@ Path OneDWave::visualiseState (Graphics& g)
     
     // Start path
     stringPath.startNewSubPath (0, -u[1][0] * visualScaling + stringBoundaries);
-    stringPath.startNewSubPath (0, -w[1][0] * visualScaling + stringBoundaries);
-    stringPath.startNewSubPath (0, -y[1][0] * visualScaling + stringBoundaries);
-    stringPath.startNewSubPath(0, -f[1][0] * visualScaling + stringBoundaries);
-    stringPath.startNewSubPath(0, -m[1][0] * visualScaling + stringBoundaries);
-    stringPath.startNewSubPath(0, -b[1][0] * visualScaling + stringBoundaries);
-
     
     // Visual spacing between two grid points
     double spacing = getWidth() / static_cast<double>(N);
@@ -193,33 +110,12 @@ Path OneDWave::visualiseState (Graphics& g)
     {
         // Needs to be -u, because a positive u would visually go down
         float newY = -u[1][l] * visualScaling + stringBoundaries;
-        float newX = -w[1][l] * visualScaling + stringBoundaries;
-        float newZ = -y[1][l] * visualScaling + stringBoundaries;
-        float newF = -f[1][l] * visualScaling + stringBoundaries;
-        float newM = -m[1][l] * visualScaling + stringBoundaries;
-        float newB = -b[1][l] * visualScaling + stringBoundaries;
-
         
         // if we get NAN values, make sure that we don't get an exception
         if (isnan(newY))
             newY = 0;
-        if (isnan(newX))
-            newX = 0;
-        if (isnan(newZ))
-            newZ = 0;
-        if (isnan(newF))
-            newF = 0;
-        if (isnan(newM))
-            newM = 0;
-        if (isnan(newB))
-            newB = 0;
         
         stringPath.lineTo (x, newY);
-        stringPath.lineTo (x, newX);
-        stringPath.lineTo (x, newZ);
-        stringPath.lineTo (x, newF);
-        stringPath.lineTo (x, newM);
-        stringPath.lineTo (x, newB);
         x += spacing;
     }
     
@@ -290,12 +186,12 @@ void OneDWave::exciteStiffstringWithGuitar (double excitationLoc)
     float a = 0.5;
             
             // make sure we're not going out of bounds at the left boundary
-            int start = std::max (floor((NStiff+1) * excitationLoc) - floor(width * 0.5), 1.0);
+            int start = std::max (floor((N+1) * excitationLoc) - floor(width * 0.5), 1.0);
             
             for (int l = 0; l < width; ++l)
             {
                 // make sure we're not going out of bounds at the right boundary (this does 'cut off' the raised cosine)
-                if (l+start > NStiff - 1)
+                if (l+start > N - 1)
                     break;
                 
                 u[1][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
@@ -333,21 +229,6 @@ void OneDWave::exciteIdealStringWithGuitar (double excitationLoc)
                 
                 u[1][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
                 u[2][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
-
-                w[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                w[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                y[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                y[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                f[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                f[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                m[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                m[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                b[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                b[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
                 // initializing uPrev = u so that the difference between the two won't be so huge
             }
 }
@@ -378,23 +259,8 @@ void OneDWave::exciteMetalBarWithXylophon (double excitationLoc)
                 if (l+start > N - 1)
                     break;
                 
-                u[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                u[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                w[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                w[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                y[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                y[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                f[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                f[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                m[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                m[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                b[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                b[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
+                u[1][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
+                u[2][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
                 // initializing uPrev = u so that the difference between the two won't be so huge
             }
 }
@@ -418,23 +284,8 @@ void OneDWave::exciteWoodBarWithXylophon (double excitationLoc)
                 if (l+start > N - 1)
                     break;
                 
-                u[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                u[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                w[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                w[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                y[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                y[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                f[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                f[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                m[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                m[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-
-                b[1][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
-                b[2][l + start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width - 1.0)));
+                u[1][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
+                u[2][l+start] += a * (1 - cos(2.0 * MathConstants<double>::pi * l / (width-1.0)));
                 // initializing uPrev = u so that the difference between the two won't be so huge
             }
 }
@@ -457,56 +308,41 @@ void OneDWave::exciteWoodBarWithXylophon (double excitationLoc)
 void OneDWave::setParamtersStiffStringGuitar(float frequencyMultiplikator)
 {
 
-    c = 1000; // Wave speed (in m/s)
-    L = 1; // Length (in m) // Time step (in s)
+    c = 300; // Wave speed (in m/s)
+    L = 0.5; // Length (in m) // Time step (in s)
     //    a = amplitude;
-
-    //Stiff String
-    sigma0 = 1;
-    sigma1 = 0.01;
-    T = 300;
-    rho = 7850;
-    r = 0.0005;
-    A = r * r * double_Pi;
-    I = r * r * r * r * double_Pi * 0.25;
-    E = 2e11;
-    cSq = T / (rho * A);
-    kappaSq = E * I / (rho * A);
-    stabilityTerm = cSq * k * k + 4.0 * sigma1 * k;
-    hStiff = sqrt(0.5 * (stabilityTerm + sqrt((stabilityTerm * stabilityTerm) + 16.0 * kappaSq * k * k)));
-    NStiff = floor(L / hStiff);
-    hStiff = L / NStiff;
+    kappa1 = 0.001;
+    sigma1 = 0.005;
+    stabilityTerm = pow(c, 2) * pow(k, 2) + 4 * sigma1 * k;
+    h = sqrt(stabilityTerm + sqrt(pow(stabilityTerm, 2) + 16 * pow(kappa1, 2) * pow(k, 2)) / 2);
+    N = floor(L / h);
+    h = L / N;
 
     
-
-    lambdaSq = c*c * k*k / (hStiff*hStiff) ;
-   
-    // Coefficients used for damping
-    S0 = sigma0 * k;
-    S1 = (2.0 * sigma1 * k) / (hStiff * hStiff);
-
-    // Scheme coefficients
-    B0 = 2.0 - 2.0 * lambdaSq - 6.0 * muSq - 2.0 * S1; // u_l^n
-    B1 = lambdaSq + 4.0 * muSq + S1;                   // u_{l+-1}^n
-    B2 = -muSq;                                        // u_{l+-2}^n
-    C0 = -1.0 + S0 + 2.0 * S1;                         // u_l^{n-1}
-    C1 = -S1;                                          // u_{l+-1}^{n-1}
-
-    Adiv = 1.0 / (1.0 + S0);                           // u_l^{n+1}
-
-    // Divide by u_l^{n+1} term
-    B0 *= Adiv;
-    B1 *= Adiv;
-    B2 *= Adiv;
-    C0 *= Adiv;
-    C1 *= Adiv;
+    lambda = c * k / h;
+    mu = kappa1 * k / pow(h, 2);
+    
 
     
 
     //DBG (lambdaSq);
     //StabilityCheck
-    if (lambdaSq > 0.99)   // lambda =< 1 for stability
-    lambdaSq = 0.99;
+    if (stabilityTerm > 0.99)   // lambda =< 1 for stability
+        stabilityTerm = 0.99;
+    if (mu > 0.99)
+        mu = 0.99;
+    if (lambda > 0.99)
+        lambda = 0.99;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 
 }
 
@@ -530,6 +366,16 @@ void OneDWave::setParamtersIdealStringGuitar(float frequencyMultiplikator)
     //StabilityCheck
     if (lambdaSq > 0.99)   // lambda =< 1 for stability
         lambdaSq = 0.99;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 }
 
 void OneDWave::setParamtersStiffStringVioline(float frequencyMultiplikator)
@@ -552,6 +398,16 @@ void OneDWave::setParamtersStiffStringVioline(float frequencyMultiplikator)
     //StabilityCheck
     if (lambdaSq > 0.99)   // lambda =< 1 for stability
         lambdaSq = 0.99;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 }
 
 void OneDWave::setParamtersIdealStringVioline(float frequencyMultiplikator)
@@ -574,62 +430,78 @@ void OneDWave::setParamtersIdealStringVioline(float frequencyMultiplikator)
     //StabilityCheck
     if (lambdaSq > 0.99)   // lambda =< 1 for stability
         lambdaSq = 0.99;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 }
 
 void OneDWave::setParamtersMetalBar(float frequencyMultiplikator)
 {
-    c = 2000; // Wave speed (in m/s)
-    L = 0.5; // Length (in m) // Time step (in s)
-    //    a = amplitude;
+    c = 400; // Wave speed (in m/s)
+    L = 0.01; // Length (in m) // Time step (in s)
+    kappa1 = 0.001;
+    h = sqrt(2 * kappa1 * k); // Grid spacing (in m)
+    N = floor(L / h);
+    h = L / N;
+    lambdaSq = c * c * k * k / (h * h);
+    
+    
+    //sigma1 = 0.01;
+    muSq = (pow(k, 2) * pow(kappa1, 2) / pow(h, 4));
 
-    //h = c * k; // Grid spacing (in m)
-    
-    
-    hBar = sqrt(2 * kappa1 * k);
-    NBar = floor(L / hBar);
-    hBar = L / NBar;
-
-    
-    lambdaSq = c*c * k*k / (h*h);
-   
-    sigma1 = 0.01;
-    
-    //B0 = (2 - 2) * lambdaSq;
-    
-    //DBG (lambdaSq);
     //StabilityCheck
     if (lambdaSq > 0.99)   // lambda =< 1 for stability
         lambdaSq = 0.99;
-    if (hBar>0.99)
-    {
-        hBar = 0.49;
-    }
+    if (muSq > 0.99)   // lambda =< 1 for stability
+        muSq = 0.5;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 }
 
 void OneDWave::setParamtersWoodenBar(float frequencyMultiplikator)
 {
     c = 400; // Wave speed (in m/s)
     L = 0.3; // Length (in m) // Time step (in s)
-    //    a = amplitude;
-    
-    hBar = sqrt(2 * kappa1 * k);
-    NBar = floor(L / hBar);
-    hBar = L / NBar;
-    
-    lambdaSq = c*c * k*k / (h*h) ;
-    
-    sigma1 = 0.05;
-    
-    //B0 = (2 - 2) * lambdaSq;
-    
-    //DBG (lambdaSq);
+    kappa1 = 0.001;
+    h = sqrt(2 * kappa1 * k); // Grid spacing (in m)
+    N = floor(L / h);
+    h = L / N;
+    lambdaSq = c * c * k * k / (h * h);
+
+
+    //sigma1 = 0.01;
+    muSq = (pow(k, 2) * pow(kappa1, 2) / pow(h, 4));
+
     //StabilityCheck
     if (lambdaSq > 0.99)   // lambda =< 1 for stability
         lambdaSq = 0.99;
-    if (hBar > 0.99)
-    {
-        hBar = 0.49;
-    }
+    if (muSq > 0.99)   // lambda =< 1 for stability
+        muSq = 0.5;
+
+    uStates = std::vector<std::vector<double>>(3, // initializing a vector of vectors (a matrix) or 3xN+1
+        std::vector<double>(N + 1, 0)); // initializing a vector, with length, content
+
+// Initialise vector of pointers to the states
+    u.resize(3, nullptr);
+
+    // Make set memory addresses to first index of the state vectors.
+    for (int i = 0; i < 3; ++i)
+        u[i] = &uStates[i][0];
 }
 
 
@@ -647,7 +519,7 @@ void OneDWave::setParamtersWoodenBar(float frequencyMultiplikator)
 
 void OneDWave::calculateSchemeNone()
 {
-    for(int l = 1; l < N; l++)
+    for(int l = 2; l < N-1; l++)
     {
         
         
@@ -661,7 +533,7 @@ void OneDWave::calculateSchemeNone()
 
 void OneDWave::calculateSchemeExciteBody()
 {
-    for(int l = 1; l < N; l++)
+    for(int l = 2; l < N-1; l++)
     {
         if (l == 1)
         {
@@ -680,27 +552,16 @@ void OneDWave::calculateSchemeExciteBody()
 void OneDWave::calculateSchemeStiffstringWithGuitar()
 {
 
-    for(int l = 2; l < NStiff-1; l++)
+    for(int l = 3; l < N-2; l++)
     {
         if (l == 1)
         {
             //shouldExcite =  false; //Prevents excitation while calculation
         }
        
-        u[0][l] = B0 * u[1][l] + B1 * (u[1][l + 1] + u[1][l - 1]) + B2 * (u[1][l + 2] + u[1][l - 2])
-                + C0 * u[2][l] + C1 * (u[2][l + 1] + u[2][l - 1]);
-        w[0][l] = B0 * w[1][l] + B1 * (w[1][l + 1] + w[1][l - 1]) + B2 * (w[1][l + 2] + w[1][l - 2])
-                + C0 * w[2][l] + C1 * (w[2][l + 1] + w[2][l - 1]);
-        y[0][l] = B0 * y[1][l] + B1 * (y[1][l + 1] + y[1][l - 1]) + B2 * (y[1][l + 2] + y[1][l - 2])
-                + C0 * y[2][l] + C1 * (y[2][l + 1] + y[2][l - 1]);
-        f[0][l] = B0 * f[1][l] + B1 * (f[1][l + 1] + f[1][l - 1]) + B2 * (f[1][l + 2] + f[1][l - 2])
-                + C0 * f[2][l] + C1 * (f[2][l + 1] + f[2][l - 1]);
-        m[0][l] = B0 * m[1][l] + B1 * (m[1][l + 1] + m[1][l - 1]) + B2 * (m[1][l + 2] + u[1][l - 2])
-                + C0 * m[2][l] + C1 * (m[2][l + 1] + m[2][l - 1]);
-        b[0][l] = B0 * b[1][l] + B1 * (b[1][l + 1] + b[1][l - 1]) + B2 * (b[1][l + 2] + b[1][l - 2])
-                + C0 * b[2][l] + C1 * (b[2][l + 1] + b[2][l - 1]);
 
 
+        u[0][l] = ((2 - 2 * pow(lambda, 2) - 6 * pow(mu, 2) - 4 * sigma1 * k / pow(h, 2)) * u[1][l] + (pow(lambda, 2) + 4 * pow(mu, 2) + 2 * sigma1 * k / pow(h, 2)) * u[1][l + 1] + u[1][l - 1] - pow(mu, 2) * (u[1][l + 2] + u[1][l - 2]) + (-1 + sigma0 * k + 4 * sigma1 * k / pow(h, 2)) * u[2][l] - 2 * sigma1 * k / pow(h, 2) * (u[2][l + 1] + u[2][l - 1])) / (1 + sigma0 * k);
 
         //u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
         // To do: Add frquency depended damping!
@@ -716,14 +577,14 @@ void OneDWave::calculateSchemeStiffstringWithGuitar()
 
 void OneDWave::calculateSchemeStiffstringWithVioline()
 {
-    for(int l = 1; l < N; l++)
+    for(int l = 2; l < N-1; l++)
     {
         if (l == 1)
         {
             //shouldExcite =  false; //Prevents excitation while calculation
         }
         
-        //u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
+        u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
         // To do: Add frquency depended damping!
         
     }
@@ -733,20 +594,14 @@ void OneDWave::calculateSchemeStiffstringWithVioline()
 
 void OneDWave::calculateSchemeIdealStringWithGuitar()
 {
-    for(int l = 2; l < N-3; l++)
+    for(int l = 2; l < N-1; l++)
     {
         if (l == 1)
         {
             //shouldExcite =  false; //Prevents excitation while calculation
         }
         
-        u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * (u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
-        w[0][l] = (2 * w[1][l] - w[2][l] + lambdaSq * (w[1][l + 1] - 2 * w[1][l] + w[1][l - 1]) + sigma0 * k * w[2][l]) / (1 + sigma0 * k);
-        y[0][l] = (2 * y[1][l] - y[2][l] + lambdaSq * (y[1][l + 1] - 2 * y[1][l] + y[1][l - 1]) + sigma0 * k * y[2][l]) / (1 + sigma0 * k);
-        f[0][l] = (2 * f[1][l] - f[2][l] + lambdaSq * (f[1][l + 1] - 2 * f[1][l] + f[1][l - 1]) + sigma0 * k * f[2][l]) / (1 + sigma0 * k);
-        m[0][l] = (2 * m[1][l] - m[2][l] + lambdaSq * (m[1][l + 1] - 2 * m[1][l] + m[1][l - 1]) + sigma0 * k * m[2][l]) / (1 + sigma0 * k);
-        b[0][l] = (2 * b[1][l] - b[2][l] + lambdaSq * (b[1][l + 1] - 2 * b[1][l] + b[1][l - 1]) + sigma0 * k * b[2][l]) / (1 + sigma0 * k);
-
+        u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
         // To do: Add frquency depended damping!
         
     }
@@ -755,7 +610,7 @@ void OneDWave::calculateSchemeIdealStringWithGuitar()
 }
 void OneDWave::calculateSchemeIdealStringWithVioline()
 {
-    for(int l = 1; l < N; l++)
+    for(int l = 2; l < N-1; l++)
     {
         if (l == 1)
         {
@@ -772,33 +627,15 @@ void OneDWave::calculateSchemeIdealStringWithVioline()
 
 void OneDWave::calculateSchemeMetalBarWithXylophon()
 {
-    for(int l = 2; l < N-3; l++)
+    for(int l = 3; l < N-2; l++)
     {
-        if (l == 1)
-        {
-            //shouldExcite =  false; //Prevents excitation while calculation
-        }
-        
-        u[0][l] = (2 * u[1][l] - u[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4 * u[1][l - 1] + u[1][l - 2]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
-        w[0][l] = (2 * w[1][l] - w[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (w[1][l + 2] - 4 * w[1][l + 1] + 6 * w[1][l] - 4 * w[1][l - 1] + w[1][l - 2]) + sigma0 * k * w[2][l]) / (1 + sigma0 * k);
-        y[0][l] = (2 * y[1][l] - y[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (y[1][l + 2] - 4 * y[1][l + 1] + 6 * y[1][l] - 4 * y[1][l - 1] + y[1][l - 2]) + sigma0 * k * y[2][l]) / (1 + sigma0 * k);
-        f[0][l] = (2 * f[1][l] - f[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (f[1][l + 2] - 4 * f[1][l + 1] + 6 * f[1][l] - 4 * f[1][l - 1] + f[1][l - 2]) + sigma0 * k * f[2][l]) / (1 + sigma0 * k);
-        m[0][l] = (2 * m[1][l] - m[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (m[1][l + 2] - 4 * m[1][l + 1] + 6 * m[1][l] - 4 * m[1][l - 1] + m[1][l - 2]) + sigma0 * k * m[2][l]) / (1 + sigma0 * k);
-        b[0][l] = (2 * b[1][l] - b[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (b[1][l + 2] - 4 * b[1][l + 1] + 6 * b[1][l] - 4 * b[1][l - 1] + b[1][l - 2]) + sigma0 * k * b[2][l]) / (1 + sigma0 * k);
-
-
-
-        u[0][1] = (2 * u[1][4] - u[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][6] - 4 * u[1][5] + 6 * u[1][4] - 4 * u[1][3] + u[1][2]) + sigma0 * k * u[2][3]) / (1 + sigma0 * k);
-        w[0][1] = (2 * w[1][4] - w[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (w[1][6] - 4 * w[1][5] + 6 * w[1][4] - 4 * w[1][3] + w[1][2]) + sigma0 * k * w[2][3]) / (1 + sigma0 * k);
         
         
-        /*u[0][1] = (2 * u[1][3] - u[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][5] - 4 * u[1][4] + 6 * u[1][3] - 4 * u[1][2] + u[1][1]) + sigma0 * k * u[2][3]) / (1 + sigma0 * k);
-        u[0][1] = (2 * u[1][3] - u[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][5] - 4 * u[1][4] + 6 * u[1][3] - 4 * u[1][2] + u[1][1]) + sigma0 * k * u[2][3]) / (1 + sigma0 * k);
-        u[0][1] = (2 * u[1][3] - u[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][5] - 4 * u[1][4] + 6 * u[1][3] - 4 * u[1][2] + u[1][1]) + sigma0 * k * u[2][3]) / (1 + sigma0 * k);
-        u[0][1] = (2 * u[1][3] - u[2][3] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][5] - 4 * u[1][4] + 6 * u[1][3] - 4 * u[1][2] + u[1][1]) + sigma0 * k * u[2][3]) / (1 + sigma0 * k);
-        //u[0][1] = (2 * u[1][3] - u[2][3) - k ^ 2kappa1 ^ 2 / h1 ^ 4 (u(5) - 4 * u(4) + 5 * u(3) - 4 * u(2)) + sigma0 * k * uPrev(3)) / (1 + sigma0 * k);
-        //uNext(N1) = (2 * u(N1 - 2) - uPrev(N1 - 2) - k ^ 2kappa1 ^ 2 / h1 ^ 4 (-4 * u(N1 - 1) + 5 * u(N1 - 2) - 4 * u(N1 - 3) + u(N1 - 4)) + sigma0 * k * uPrev(N1 - 2)) / (1 + sigma0 * k);
-        // To do: Add frquency depended damping!*/
+        
+        u[0][l] = (2 * u[1][l] - u[2][l] - muSq * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4 * u[1][l - 1] + u[1][l - 2]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
+        
+        //u[0][l] = (2 * u[1][l] - u[2][l] + lambdaSq * ( u[1][l+1] - 2 * u[1][l] + u[1][l-1]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
+        // To do: Add frquency depended damping!
         
     }
     
@@ -807,23 +644,15 @@ void OneDWave::calculateSchemeMetalBarWithXylophon()
 
 void OneDWave::calculateSchemeWoodBarWithXylophon()
 {
-    for(int l = 2; l < N-3; l++)
+    for(int l = 3; l < N-2; l++)
     {
         if (l == 1)
         {
             //shouldExcite =  false; //Prevents excitation while calculation
         }
         
-        u[0][l] = (2 * u[1][l] - u[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4 * u[1][l - 1] + u[1][l - 2]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
-        w[0][l] = (2 * w[1][l] - w[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (w[1][l + 2] - 4 * w[1][l + 1] + 6 * w[1][l] - 4 * w[1][l - 1] + w[1][l - 2]) + sigma0 * k * w[2][l]) / (1 + sigma0 * k);
-        y[0][l] = (2 * y[1][l] - y[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (y[1][l + 2] - 4 * y[1][l + 1] + 6 * y[1][l] - 4 * y[1][l - 1] + y[1][l - 2]) + sigma0 * k * y[2][l]) / (1 + sigma0 * k);
-        f[0][l] = (2 * f[1][l] - f[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (f[1][l + 2] - 4 * f[1][l + 1] + 6 * f[1][l] - 4 * f[1][l - 1] + f[1][l - 2]) + sigma0 * k * f[2][l]) / (1 + sigma0 * k);
-        m[0][l] = (2 * m[1][l] - m[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (m[1][l + 2] - 4 * m[1][l + 1] + 6 * m[1][l] - 4 * m[1][l - 1] + m[1][l - 2]) + sigma0 * k * m[2][l]) / (1 + sigma0 * k);
-        b[0][l] = (2 * b[1][l] - b[2][l] - (pow(k, 2) * pow(kappa1, 2) / pow(hBar, 4)) * (b[1][l + 2] - 4 * b[1][l + 1] + 6 * b[1][l] - 4 * b[1][l - 1] + b[1][l - 2]) + sigma0 * k * b[2][l]) / (1 + sigma0 * k);
+        u[0][l] = (2 * u[1][l] - u[2][l] - muSq * (u[1][l + 2] - 4 * u[1][l + 1] + 6 * u[1][l] - 4 * u[1][l - 1] + u[1][l - 2]) + sigma0 * k * u[2][l]) / (1 + sigma0 * k);
         // To do: Add frquency depended damping!
-
-       
-        
         
     }
     
@@ -854,30 +683,7 @@ void OneDWave::updateStates()
     u[1] = u[0];            //read it like u0 is going to be u1
     u[0] = uTmp;            // now get back the adress of the vector that can be overwritten
     
-    double* wTmp = w[2];
-    w[2] = w[1];            //read it like u1 is going to be u2
-    w[1] = w[0];            //read it like u0 is going to be u1
-    w[0] = wTmp;            // now get back the adress of the vector that can be overwritten
-
-    double* yTmp = y[2];
-    y[2] = y[1];            //read it like u1 is going to be u2
-    y[1] = y[0];            //read it like u0 is going to be u1
-    y[0] = yTmp;            // now get back the adress of the vector that can be overwritten
-
-    double* fTmp = f[2]; // saving that location in memory for uPrev, /we need to store the pointer adress. even if we don't need the data anymore
-    f[2] = f[1];            //read it like u1 is going to be u2
-    f[1] = f[0];            //read it like u0 is going to be u1
-    f[0] = fTmp;            // now get back the adress of the vector that can be overwritten
-
-    double* mTmp = m[2];
-    m[2] = m[1];            //read it like u1 is going to be u2
-    m[1] = m[0];            //read it like u0 is going to be u1
-    m[0] = mTmp;            // now get back the adress of the vector that can be overwritten
-
-    double* bTmp = b[2];
-    b[2] = b[1];            //read it like u1 is going to be u2
-    b[1] = b[0];            //read it like u0 is going to be u1
-    b[0] = bTmp;            // now get back the adress of the vector that can be overwritten
+    
     //******
 }
 

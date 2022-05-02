@@ -59,92 +59,92 @@ using namespace dsp;
 
 struct ConvolutionDemoDSP
 {
-    
+
     double sampleRate = 0.0;
     bool bypass = false;
-    
+
 
     Convolution convolution;
-    
-    
-    void prepareConv (const ProcessSpec& spec) //prepareConv is only called with PrepareToPlay(), so here it is done for Dirac
+
+
+    void prepareConv(const ProcessSpec& spec) //prepareConv is only called with PrepareToPlay(), so here it is done for Dirac
     {
-        
+
         sampleRate = spec.sampleRate;
-        convolution.prepare (spec);
+        convolution.prepare(spec);
         updateParametersConvDirac();
-        
+
     }
-    
 
-    void processConv (ProcessContextReplacing<float> context)
+
+    void processConv(ProcessContextReplacing<float> context)
     {
-       // context.isBypassed = bypass;
-        
+        // context.isBypassed = bypass;
 
-        // Load a new IR if there's one available. Note that this doesn't lock or allocate!
-        bufferTransfer.get ([this] (BufferWithSampleRate& buf)
-        {
-            //File irAcGuitarHammer = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/01AcGuitar_HammerRev.wav");
-            //const File &irAcGuitarHammer2 = irAcGuitarHammer;
-            
-             convolution.loadImpulseResponse (std::move (buf.buffer),
-                                             buf.sampleRate,
-                                             Convolution::Stereo::yes,
-                                             Convolution::Trim::no,
-                                             Convolution::Normalise::no);
-            
-            
-            /*convolution.loadImpulseResponse     (&irAcGuitarHammer2,
-                                                 Convolution::Stereo::yes,
-                                                 Convolution::Trim::no,
-                                                 Convolution::Normalise::no);
-            */
-           // DBG(convolution.getCurrentIRSize());
-            /*
-             void loadImpulseResponse (const File& fileImpulseResponse,
-                        Stereo isStereo, Trim requiresTrimming, size_t size,
-                        Normalise requiresNormalisation = Normalise::yes);
-             
-             This function loads an impulse response from an audio buffer.
-             To avoid memory allocation on the audio thread, this function takes
-             ownership of the buffer passed in.
-             
-             If calling this function during processing, make sure that the buffer is
-             not allocated on the audio thread (be careful of accidental copies!).
-             If you need to pass arbitrary/generated buffers it's recommended to
-             create these buffers on a separate thread and to use some wait-free
-             construct (a lock-free queue or a SpinLock/GenericScopedTryLock combination)
-             to transfer ownership to the audio thread without allocating.
-             
-             @param buffer                   the AudioBuffer to use
-             @param bufferSampleRate         the sampleRate of the data in the AudioBuffer
-             @param isStereo                 selects either stereo or mono
-             @param requiresTrimming         optionally trim the start and the end of the impulse response
-             @param requiresNormalisation    optionally normalise the impulse response amplitude
-            */
-            DBG("process");
-            DBG(convolution.getCurrentIRSize());
-        });
 
-        convolution.process (context);
-        
-        
+         // Load a new IR if there's one available. Note that this doesn't lock or allocate!
+        bufferTransfer.get([this](BufferWithSampleRate& buf)
+            {
+                //File irAcGuitarHammer = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/01AcGuitar_HammerRev.wav");
+                //const File &irAcGuitarHammer2 = irAcGuitarHammer;
+
+                convolution.loadImpulseResponse(std::move(buf.buffer),
+                    buf.sampleRate,
+                    Convolution::Stereo::yes,
+                    Convolution::Trim::no,
+                    Convolution::Normalise::no);
+
+
+                /*convolution.loadImpulseResponse     (&irAcGuitarHammer2,
+                                                     Convolution::Stereo::yes,
+                                                     Convolution::Trim::no,
+                                                     Convolution::Normalise::no);
+                */
+                // DBG(convolution.getCurrentIRSize());
+                 /*
+                  void loadImpulseResponse (const File& fileImpulseResponse,
+                             Stereo isStereo, Trim requiresTrimming, size_t size,
+                             Normalise requiresNormalisation = Normalise::yes);
+
+                  This function loads an impulse response from an audio buffer.
+                  To avoid memory allocation on the audio thread, this function takes
+                  ownership of the buffer passed in.
+
+                  If calling this function during processing, make sure that the buffer is
+                  not allocated on the audio thread (be careful of accidental copies!).
+                  If you need to pass arbitrary/generated buffers it's recommended to
+                  create these buffers on a separate thread and to use some wait-free
+                  construct (a lock-free queue or a SpinLock/GenericScopedTryLock combination)
+                  to transfer ownership to the audio thread without allocating.
+
+                  @param buffer                   the AudioBuffer to use
+                  @param bufferSampleRate         the sampleRate of the data in the AudioBuffer
+                  @param isStereo                 selects either stereo or mono
+                  @param requiresTrimming         optionally trim the start and the end of the impulse response
+                  @param requiresNormalisation    optionally normalise the impulse response amplitude
+                 */
+                DBG("process");
+                DBG(convolution.getCurrentIRSize());
+            });
+
+        convolution.process(context);
+
+
     }
 
     void resetConv()
     {
         convolution.reset();
     }
-    
-    
-    
+
+
+
     //To Do:
     //now get's updated every buffer. Should we change that, that it is only updatet if we have changes in the ComboBoxes?
     void updateParametersConvDirac()
     {
-        File irDirac = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/00DiracImpuls.wav");
-        
+        File irDirac = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\00DiracImpuls.wav");
+
         auto assetInputStream = irDirac.createInputStream();
         if (assetInputStream == nullptr)
         {
@@ -153,27 +153,27 @@ struct ConvolutionDemoDSP
         }
         AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irDirac.getSize());
     }
-    
+
     void updateParametersConvGuitar()
     {
-        File irAcGuitar = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/01AcGuitar_SweepRev.wav");
+        File irAcGuitar = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\01AcGuitar_SweepRev.wav");
         auto assetInputStream = irAcGuitar.createInputStream();
         if (assetInputStream == nullptr)
         {
@@ -182,29 +182,29 @@ struct ConvolutionDemoDSP
         }
         AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer2 (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer2.getArrayOfWritePointers(), buffer2.getNumChannels(), 0, buffer2.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer2), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer2(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer2.getArrayOfWritePointers(), buffer2.getNumChannels(), 0, buffer2.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer2), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
-        
+
         DBG(irAcGuitar.getSize());
     }
-    
+
     void updateParametersConvVioline()
     {
-        File irViolineSweep = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/07Violin_SweepRev.wav");
-        
+        File irViolineSweep = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\07Violin_SweepRev.wav");
+
         auto assetInputStream = irViolineSweep.createInputStream();
         if (assetInputStream == nullptr)
         {
@@ -213,28 +213,28 @@ struct ConvolutionDemoDSP
         }
         AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irViolineSweep.getSize());
     }
-    
+
     void updateParametersConvMetalBox()
     {
-        File irMetalBoxSweep = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/03MetalBox_SweepRev.wav");
-        
+        File irMetalBoxSweep = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\03MetalBox_SweepRev.wav");
+
         auto assetInputStream = irMetalBoxSweep.createInputStream();
         if (assetInputStream == nullptr)
         {
@@ -243,165 +243,165 @@ struct ConvolutionDemoDSP
         }
         AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irMetalBoxSweep.getSize());
     }
-    
+
     void updateParametersConvWoodBox()
     {
-        File irWoodBoxSweep = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/04Wood_SweepRev.wav");
-        
+        File irWoodBoxSweep = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\04Wood_SweepRev.wav");
+
         auto assetInputStream = irWoodBoxSweep.createInputStream();
         if (assetInputStream == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-         AudioFormatManager manager;
+
+        AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irWoodBoxSweep.getSize());
     }
-    
+
     void updateParametersConvPaperBox()
     {
-        File irPaperBoxSweep = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/05PaperBox_SweepRev.wav");
-        
+        File irPaperBoxSweep = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\05PaperBox_SweepRev.wav");
+
         auto assetInputStream = irPaperBoxSweep.createInputStream();
         if (assetInputStream == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-         AudioFormatManager manager;
+
+        AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-        
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irPaperBoxSweep.getSize());
     }
-    
+
     void updateParametersConvOtherBox()
     {
-        File irOtherBoxSweep = File("/Users/stx/0000_Austausch/0005_Aalborg university/2022_SS/Semester Project/ImpulseResponses/IRs_Hammers_Sweeps_Rev/11CeramicDrum_SweepRev.wav");
-        
+        File irOtherBoxSweep = File("C:\\Users\\Jaime\\Documents\\IR_SemesterProject\\11CeramicDrum_SweepRev.wav");
+
         auto assetInputStream = irOtherBoxSweep.createInputStream();
         if (assetInputStream == nullptr)
         {
             jassertfalse;
             return;
         }
-       AudioFormatManager manager;
+        AudioFormatManager manager;
         manager.registerBasicFormats();
-        std::unique_ptr<AudioFormatReader> reader { manager.createReaderFor (std::move (assetInputStream)) };
-        
+        std::unique_ptr<AudioFormatReader> reader{ manager.createReaderFor(std::move(assetInputStream)) };
+
         if (reader == nullptr)
         {
             jassertfalse;
             return;
         }
-        
-        AudioBuffer<float> buffer (static_cast<int> (reader->numChannels),
-                                   static_cast<int> (reader->lengthInSamples));
-        reader->read (buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
-        
-        bufferTransfer.set (BufferWithSampleRate { std::move (buffer), reader->sampleRate });
-       
+
+        AudioBuffer<float> buffer(static_cast<int> (reader->numChannels),
+            static_cast<int> (reader->lengthInSamples));
+        reader->read(buffer.getArrayOfWritePointers(), buffer.getNumChannels(), 0, buffer.getNumSamples());
+
+        bufferTransfer.set(BufferWithSampleRate{ std::move(buffer), reader->sampleRate });
+
         DBG(convolution.getCurrentIRSize());
         DBG(irOtherBoxSweep.getSize());
     }
-    
-    
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //==============================================================================
     struct BufferWithSampleRate
     {
         BufferWithSampleRate() = default;
 
-        BufferWithSampleRate (AudioBuffer<float>&& bufferIn, double sampleRateIn)
-            : buffer (std::move (bufferIn)), sampleRate (sampleRateIn) {}
+        BufferWithSampleRate(AudioBuffer<float>&& bufferIn, double sampleRateIn)
+            : buffer(std::move(bufferIn)), sampleRate(sampleRateIn) {}
 
         AudioBuffer<float> buffer;
         double sampleRate = 0.0;
     };
 
-    
-    
+
+
     class BufferTransfer
     {
     public:
-        void set (BufferWithSampleRate&& p)
+        void set(BufferWithSampleRate&& p)
         {
-            const SpinLock::ScopedLockType lock (mutex);
-            buffer = std::move (p);
+            const SpinLock::ScopedLockType lock(mutex);
+            buffer = std::move(p);
             newBuffer = true;
         }
 
         // Call `fn` passing the new buffer, if there's one available
         template <typename Fn>
-        void get (Fn&& fn)
+        void get(Fn&& fn)
         {
-            const SpinLock::ScopedTryLockType lock (mutex);
+            const SpinLock::ScopedTryLockType lock(mutex);
 
             if (lock.isLocked() && newBuffer)
             {
-                fn (buffer);
+                fn(buffer);
                 newBuffer = false;
             }
         }

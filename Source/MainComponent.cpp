@@ -584,11 +584,6 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
             oneDWave->calculateSchemeStiffstringWithGuitar();
             oneDWave->updateStates();
             outputSoundModel = oneDWave->getOutput (0.8);
-            outputSoundModel = oneDWave->getOutputw(0.4);
-            outputSoundModel = oneDWave->getOutputy(0.4);
-            outputSoundModel = oneDWave->getOutputf(0.4);
-            outputSoundModel = oneDWave->getOutputm(0.4);
-            outputSoundModel = oneDWave->getOutputb(0.4);
             //DBG("StiffstringWithGuitar");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithVioline)
@@ -602,14 +597,7 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
         {
             oneDWave->calculateSchemeIdealStringWithGuitar();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput(0.8);
-            outputSoundModel = oneDWave->getOutputw(0.4);
-            outputSoundModel = oneDWave->getOutputy(0.4);
-            outputSoundModel = oneDWave->getOutputf(0.4);
-            outputSoundModel = oneDWave->getOutputm(0.4);
-            outputSoundModel = oneDWave->getOutputb(0.4);
-
-            
+            outputSoundModel = oneDWave->getOutput (0.8);
             //DBG("IdealStringWithGuitar");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithVioline)
@@ -624,11 +612,6 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
             oneDWave->calculateSchemeMetalBarWithXylophon();
             oneDWave->updateStates();
             outputSoundModel = oneDWave->getOutput (0.8);
-            outputSoundModel = oneDWave->getOutputw(0.4);
-            outputSoundModel = oneDWave->getOutputy(0.4);
-            outputSoundModel = oneDWave->getOutputf(0.4);
-            outputSoundModel = oneDWave->getOutputm(0.4);
-            outputSoundModel = oneDWave->getOutputb(0.4);
             //  DBG("MetalBarWithXylophon");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::WoodBarWithXylophon)
@@ -636,11 +619,6 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
             oneDWave->calculateSchemeWoodBarWithXylophon();
             oneDWave->updateStates();
             outputSoundModel = oneDWave->getOutput (0.8);
-            outputSoundModel = oneDWave->getOutputw(0.4);
-            outputSoundModel = oneDWave->getOutputy(0.4);
-            outputSoundModel = oneDWave->getOutputf(0.4);
-            outputSoundModel = oneDWave->getOutputm(0.4);
-            outputSoundModel = oneDWave->getOutputb(0.4);
             //DBG("WoodBarWithXylophon");
         }
         
