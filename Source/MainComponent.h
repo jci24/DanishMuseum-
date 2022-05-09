@@ -88,6 +88,7 @@ public:
     void exchangeArpeggioNumber (double arpeggioToSet);
     void exchangeScaleNumber (double scaleToSet);
     void setDamping (double dampingToSet);
+    void setDamping2(double dampingToSet2);
     void setSpeed (double speedToSet)
     {
         speedNumber = speedToSet;
@@ -113,11 +114,13 @@ private: // Member variables
     Slider arpeggioSlider;
     Slider scaleSlider;
     Slider dampingSlider;
+    Slider dampingSlider1;
     Slider speedSlider;
     
     Label labelArpeggio;
     Label labelScale;
     Label labelDamping;
+    Label labelDamping1;
     Label labelSpeed;
     
     //Buttons
@@ -137,6 +140,7 @@ private: // Member variables
     double arpeggioNumber;
     double scaleNumber;
     double damping;
+    double damping2;
     double speedNumber;
     
     

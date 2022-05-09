@@ -181,13 +181,21 @@ MainComponent::MainComponent()
     labelScale.attachToComponent(&scaleSlider, false);
     labelScale.setJustificationType(juce::Justification::horizontallyCentred);
     
-    dampingSlider.setRange (0, 10, 0.1);
+    dampingSlider.setRange (0, 2, 0.1);
     dampingSlider.setValue (1);
     dampingSlider.setSliderStyle(Slider::SliderStyle::Rotary);
     dampingSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
     labelDamping.setText("Damping", dontSendNotification);
     labelDamping.attachToComponent(&dampingSlider, false);
     labelDamping.setJustificationType(juce::Justification::horizontallyCentred);
+
+    dampingSlider1.setRange(0.002, 0.05, 0.001);
+    dampingSlider1.setValue(1);
+    dampingSlider1.setSliderStyle(Slider::SliderStyle::Rotary);
+    dampingSlider1.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 20);
+    labelDamping1.setText("Damping", dontSendNotification);
+    labelDamping1.attachToComponent(&dampingSlider, false);
+    labelDamping1.setJustificationType(juce::Justification::horizontallyCentred);
     
     speedSlider.setRange (100, 2000, 100);
     speedSlider.setValue (500);
@@ -224,6 +232,7 @@ MainComponent::MainComponent()
     arpeggioSlider.addListener (this);
     scaleSlider.addListener (this);
     dampingSlider.addListener (this);
+    dampingSlider1.addListener(this);
     speedSlider.addListener (this);
     
     //Buttons
@@ -247,6 +256,7 @@ MainComponent::MainComponent()
     addAndMakeVisible (arpeggioSlider);
     addAndMakeVisible (scaleSlider);
     addAndMakeVisible (dampingSlider);
+    addAndMakeVisible(dampingSlider1);
     addAndMakeVisible (speedSlider);
     
     
@@ -254,6 +264,7 @@ MainComponent::MainComponent()
     addAndMakeVisible (labelArpeggio);
     addAndMakeVisible (labelScale);
     addAndMakeVisible (labelDamping);
+    addAndMakeVisible(labelDamping1);
     addAndMakeVisible (labelSpeed);
     
     
@@ -576,49 +587,56 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
         {
             oneDWave->calculateSchemeExciteBody();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            
+
             //DBG("ExciteBody");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithGuitar)
         {
             oneDWave->calculateSchemeStiffstringWithGuitar();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput (0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.4) + oneDWave->getOutputm(0.4);
+            
             //DBG("StiffstringWithGuitar");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::StiffstringWithVioline)
         {
             oneDWave->calculateSchemeStiffstringWithVioline();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput (0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.8) + oneDWave->getOutputm(0.4);
+            
             //DBG("StiffstringWithVioline");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithGuitar)
         {
             oneDWave->calculateSchemeIdealStringWithGuitar();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput (0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.4) + oneDWave->getOutputm(0.4);
+            
             //DBG("IdealStringWithGuitar");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::IdealStringWithVioline)
         {
             oneDWave->calculateSchemeIdealStringWithVioline();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput(0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.4) + +oneDWave->getOutputm(0.4);
+            
             //DBG("IdealStringWithVioline");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::MetalBarWithXylophon)
         {
             oneDWave->calculateSchemeMetalBarWithXylophon();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput(0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.4) + +oneDWave->getOutputm(0.4);
+            
             //  DBG("MetalBarWithXylophon");
         }
         else if (soundmodel.getSoundTyp() == Soundmodel::SoundTyp::WoodBarWithXylophon)
         {
             oneDWave->calculateSchemeWoodBarWithXylophon();
             oneDWave->updateStates();
-            outputSoundModel = oneDWave->getOutput (0.8);
+            outputSoundModel = oneDWave->getOutput (0.8) + oneDWave->getOutputv(0.4) + oneDWave->getOutputw(0.4) + oneDWave->getOutputm(0.4);
+          
             //DBG("WoodBarWithXylophon");
         }
         
@@ -1035,12 +1053,14 @@ void MainComponent::sliderValueChanged (Slider* slider)
      */
     if (slider == &arpeggioSlider) //HERE IT IS DEFINED, WHAT THE SLIDER ACTUALLY DOES, or in which value the change is written
         exchangeArpeggioNumber(arpeggioSlider.getValue());
-    
-    
+
+
     else if (slider == &scaleSlider)
-        exchangeScaleNumber (scaleSlider.getValue());
+        exchangeScaleNumber(scaleSlider.getValue());
     else if (slider == &dampingSlider)
-        setDamping (dampingSlider.getValue());
+        setDamping(dampingSlider.getValue());
+    else if (slider == &dampingSlider1)
+        setDamping2(dampingSlider1.getValue());
     else if (slider == &speedSlider)
         setSpeed (speedSlider.getValue());
 }
@@ -1094,8 +1114,12 @@ void MainComponent::setDamping (double dampingToSet)
 {
     oneDWave->setDamping(dampingToSet);
     
+    
 }
-
+void MainComponent::setDamping2(double dampingToSet2)
+{
+    oneDWave->setDamping2(dampingToSet2);
+}
 
 
 

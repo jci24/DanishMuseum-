@@ -93,38 +93,47 @@ public:
     
     
     // Get the output at a specified ratio of the length of the system
-    float getOutput (float outRatio) { return u[1][(int)floor(outRatio * N)]; };
-    
+    float getOutput (float outRatio) { return u[1][(int)floor(outRatio * NIdeal)]; };
+    float getOutputv (float outRatio) { return v[1][(int)floor(outRatio * NIdeal)]; };
+    float getOutputw (float outRatio) { return w[1][(int)floor(outRatio * NIdeal)]; };
+    float getOutputm (float outRatio) { return m[1][(int)floor(outRatio * NIdeal)]; };
+
     void setDamping (double dampingToSet)
     {
         sigma0 = dampingToSet; //Here Sigma0 gets defined and updated, everytime a slider is changed.
     }
     
+    void setDamping2(double dampingToSet2)
+    {
+        sigma1 = dampingToSet2;
+    }
  
     
     double sigma0;
-    
+    double sigma1;
+
 private:
     
     // Member Variables
     double k; // Time step (in s)
     double c; // Wave speed (in m/s)
-    double h; // Grid spacing (in m)
+    double hIdeal, hBar, hStiff, h; // Grid spacing (in m)
     double L; // Length (in m)
     double B0;
-    double kappa1;
-    double muSq,mu;
     
-    double sigma1;
+    double kappa1, stabilityTerm;
     
-    double lambdaSq,lambda; // Courant number squared to be used in the update equation
-    double stabilityTerm;
-    double N; // number of intervals (number of grid points is N+1)
+    double lambdaSqIdeal, lambdaSqBar, lambda, muSqBar, mu; // Courant number squared to be used in the update equation
+    
+    int NIdeal, NStiff, NBar, N; // number of intervals (number of grid points is N+1)
     
     bool shouldExcite;
 
     // A vector of 3 vectors saving the states of the system at n+1, n and n-1
     std::vector<std::vector<double>> uStates;
+    std::vector<std::vector<double>> vStates;
+    std::vector<std::vector<double>> wStates;
+    std::vector<std::vector<double>> mStates;
     
     // Pointers to the 3 vectors in uStates. The first index indicates the time index (0 -> n+1, 1 -> n, 2 -> n-1) and the second index indicates the spatial index.
     /*
@@ -135,8 +144,9 @@ private:
      */
     std::vector<double*> u;
     
-    
-    
+    std::vector<double*> v;
+    std::vector<double*> w;
+    std::vector<double*> m;
     
     
         
